@@ -1,0 +1,17 @@
+[package]
+name = "untrustended"
+version = "0.0.1"
+authors = ["Ossi Herrala <oherrala@iki.fi>"]
+license = "ISC"
+
+description = "Untrustended - Untrusted Extended. A compilation of primitives for parsing values from untrusted input."
+homepage = "https://github.com/oherrala/untrustended#readme"
+repository = "https://github.com/oherrala/untrustended"
+readme = "README.md"
+
+[dependencies]
+untrusted = "0.5.0"
+
+[dev-dependencies]
+byteorder = "1.1.0"
+quickcheck = "0.4.1"
