@@ -129,6 +129,72 @@ pub trait ReaderExt {
         Ok((b1 << 32) + b2)
     }
 
+    /// Reads 16 bit signed integer in big endian.
+    ///
+    /// Returns Ok(v) where v is the value read, or Err(Error::EndOfInput) if
+    /// the Reader encountered an end of the input while reading.
+    #[inline]
+    fn read_i16be(&mut self) -> Result<i16, Error> {
+        let b1 = self.read_u8()? as i16;
+        let b2 = self.read_u8()? as i16;
+        Ok((b1 << 8) + b2)
+    }
+
+    /// Reads 32 bit signed integer in big endian.
+    ///
+    /// Returns Ok(v) where v is the value read, or Err(Error::EndOfInput) if
+    /// the Reader encountered an end of the input while reading.
+    #[inline]
+    fn read_i32be(&mut self) -> Result<i32, Error> {
+        let b1 = self.read_u16be()? as i32;
+        let b2 = self.read_u16be()? as i32;
+        Ok((b1 << 16) + b2)
+    }
+
+    /// Reads 64 bit signed integer in big endian.
+    ///
+    /// Returns Ok(v) where v is the value read, or Err(Error::EndOfInput) if
+    /// the Reader encountered an end of the input while reading.
+    #[inline]
+    fn read_i64be(&mut self) -> Result<i64, Error> {
+        let b1 = self.read_u32be()? as i64;
+        let b2 = self.read_u32be()? as i64;
+        Ok((b1 << 32) + b2)
+    }
+
+    /// Reads 16 bit signed integer in little endian.
+    ///
+    /// Returns Ok(v) where v is the value read, or Err(Error::EndOfInput) if
+    /// the Reader encountered an end of the input while reading.
+    #[inline]
+    fn read_i16le(&mut self) -> Result<i16, Error> {
+        let b2 = self.read_u8()? as i16;
+        let b1 = self.read_u8()? as i16;
+        Ok((b1 << 8) + b2)
+    }
+
+    /// Reads 32 bit signed integer in little endian.
+    ///
+    /// Returns Ok(v) where v is the value read, or Err(Error::EndOfInput) if
+    /// the Reader encountered an end of the input while reading.
+    #[inline]
+    fn read_i32le(&mut self) -> Result<i32, Error> {
+        let b2 = self.read_u16le()? as i32;
+        let b1 = self.read_u16le()? as i32;
+        Ok((b1 << 16) + b2)
+    }
+
+    /// Reads 64 bit signed integer in little endian.
+    ///
+    /// Returns Ok(v) where v is the value read, or Err(Error::EndOfInput) if
+    /// the Reader encountered an end of the input while reading.
+    #[inline]
+    fn read_i64le(&mut self) -> Result<i64, Error> {
+        let b2 = self.read_u32le()? as i64;
+        let b1 = self.read_u32le()? as i64;
+        Ok((b1 << 32) + b2)
+    }
+
     /// Reads given amount of bytes.
     ///
     /// Returns Ok(v) where v is a `Vec<u8>` of bytes read, or
