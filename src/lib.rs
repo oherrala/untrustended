@@ -221,7 +221,7 @@ pub trait ReaderExt {
     ///
     /// Returns Ok(v) where v is a `String` of bytes read, or
     /// Err(Error::EndOfInput) if the Reader encountered an end of the input
-    /// while reading, or Err(Error::UnicodeError) if UTF-8 parsing failed.
+    /// while reading, or Err(Error::ParseError) if UTF-8 parsing failed.
     #[inline]
     fn read_utf8(&mut self, length: usize) -> Result<String, Error> {
         let buf = self.read_bytes(length)?;
@@ -231,7 +231,8 @@ pub trait ReaderExt {
     /// Reads bytes as UTF-16 String.
     ///
     /// Length is the amount of bytes to read, not the amount of UTF-16
-    /// characters.
+    /// characters. Length should be even number and Err(Error::ParseError) is
+    /// returned if it's odd.
     ///
     /// Read bytes are validated to be valid UTF-16 by
     /// [String::from_utf16](https://doc.rust-lang.org/std/string/struct.String.html#method.from_utf16)
@@ -239,7 +240,7 @@ pub trait ReaderExt {
     ///
     /// Returns Ok(v) where v is a `String` of bytes read, or
     /// Err(Error::EndOfInput) if the Reader encountered an end of the input
-    /// while reading, or Err(Error::UnicodeError) if UTF-8 parsing failed.
+    /// while reading, or Err(Error::ParseError) if UTF-8 parsing failed.
     #[inline]
     fn read_utf16(&mut self, length: usize) -> Result<String, Error> {
         if (length % 2) != 0 {
@@ -268,14 +269,14 @@ mod error {
     use untrusted::EndOfInput;
 
     /// Possible errors raised by `ReaderExt`.
-    #[derive(Debug)]
+    #[derive(Debug, PartialEq)]
     pub enum Error {
         /// The error type used to indicate the end of the input was reached
         /// before the operation could be completed.
         EndOfInput,
         /// The error type used to indicate when a failed parsing while trying
-        /// to convert bytes into a `String`.
-        UnicodeError,
+        /// to convert bytes into a more specific type.
+        ParseError,
         /// Unknown error occured.
         UnknownError,
     }
@@ -294,13 +295,13 @@ mod error {
 
     impl From<FromUtf8Error> for Error {
         fn from(_: FromUtf8Error) -> Self {
-            Error::UnicodeError
+            Error::ParseError
         }
     }
 
     impl From<FromUtf16Error> for Error {
         fn from(_: FromUtf16Error) -> Self {
-            Error::UnicodeError
+            Error::ParseError
         }
     }
 }
