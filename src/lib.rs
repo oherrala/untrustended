@@ -47,6 +47,8 @@ use untrusted::Reader;
 
 pub use error::Error;
 
+use std::net::{Ipv4Addr, Ipv6Addr};
+
 /// A trait extending [untrusted](https://crates.io/crates/untrusted)'s
 /// [`Reader`](../untrusted/struct.Reader.html).
 pub trait ReaderExt {
@@ -253,6 +255,22 @@ pub trait ReaderExt {
             buf.push(b);
         }
         String::from_utf16(&buf).map_err(From::from)
+    }
+
+    /// Reads IPv4 address in big endian format.
+    fn read_ipv4addr(&mut self) -> Result<Ipv4Addr, Error> {
+        let bytes = self.read_u32be()?;
+        Ok(Ipv4Addr::from(bytes))
+    }
+
+    /// Reads IPv6 address in big endian format.
+    fn read_ipv6addr(&mut self) -> Result<Ipv6Addr, Error> {
+        let mut b = [0u16; 8];
+        for i in &mut b {
+            *i = self.read_u16be()?;
+        }
+        let ip = Ipv6Addr::new(b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]);
+        Ok(ip)
     }
 }
 

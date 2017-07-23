@@ -259,3 +259,37 @@ fn read_utf16_with_odd_length() {
         _ => panic!("Test shouldn't reach here"),
     }
 }
+
+#[test]
+fn read_ipv4addr() {
+    use std::net::Ipv4Addr;
+    let addrs: Vec<Ipv4Addr> = vec![
+        "0.0.0.0".parse().expect("parse ipv4 addr"),
+        "192.0.2.1".parse().expect("parse ipv4 addr"),
+        "198.51.100.128".parse().expect("parse ipv4 addr"),
+        "203.0.113.255".parse().expect("parse ipv4 addr"),
+        "255.255.255.255".parse().expect("parse ipv4 addr"),
+    ];
+    for addr in addrs {
+        let mut buf = Vec::new();
+        buf.write_all(&addr.octets()).expect("write_all");
+        let mut reader = reader(&buf);
+        assert_eq!(addr, reader.read_ipv4addr().expect("read_ipv4addr"));
+    }
+}
+
+#[test]
+fn read_ipv6addr() {
+    use std::net::Ipv6Addr;
+    let addrs: Vec<Ipv6Addr> = vec![
+        "2001:DB8::".parse().expect("parse ipv6 addr"),
+        "2001:DB8:ff00:00ff:f00f:0ff0:0000:ffff".parse().expect("parse ipv6 addr"),
+        "2001:DB8:ffff:ffff:ffff:ffff:ffff:ffff".parse().expect("parse ipv6 addr"),
+    ];
+    for addr in addrs {
+        let mut buf = Vec::new();
+        buf.write_all(&addr.octets()).expect("write_all");
+        let mut reader = reader(&buf);
+        assert_eq!(addr, reader.read_ipv6addr().expect("read_ipv6addr"));
+    }
+}
