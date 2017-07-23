@@ -242,6 +242,9 @@ pub trait ReaderExt {
     /// while reading, or Err(Error::UnicodeError) if UTF-8 parsing failed.
     #[inline]
     fn read_utf16(&mut self, length: usize) -> Result<String, Error> {
+        if (length % 2) != 0 {
+            return Err(Error::ParseError);
+        }
         let len16 = length / 2;
         let mut buf: Vec<u16> = Vec::with_capacity(len16);
         for _ in 0..len16 {

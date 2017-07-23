@@ -6,7 +6,7 @@ extern crate untrusted;
 extern crate untrustended;
 
 use untrusted::{Input, Reader};
-use untrustended::ReaderExt;
+use untrustended::{ReaderExt, Error};
 
 use std::io::Write;
 use byteorder::{WriteBytesExt, BigEndian, LittleEndian};
@@ -123,6 +123,16 @@ quickcheck! {
         let mut reader = reader(&buf);
         xs == reader.read_utf8(len).expect("read_utf8")
     }
+
+    fn prop_read_utf16(xs: String) -> bool {
+        let mut buf = Vec::new();
+        for short in xs.encode_utf16() {
+            buf.write_u16::<BigEndian>(short).expect("write_u16");
+        }
+        let len = buf.len();
+        let mut reader = reader(&buf);
+        xs == reader.read_utf16(len).expect("read_utf16")
+    }
 }
 
 #[test]
@@ -238,5 +248,14 @@ fn read_i64le_specials() {
         buf.write_i64::<LittleEndian>(s).expect("write_i64");
         let mut reader = reader(&buf);
         assert_eq!(s, reader.read_i64le().expect("read_i64le"));
+    }
+}
+
+#[test]
+fn read_utf16_with_odd_length() {
+    let mut reader = reader(&[]);
+    match reader.read_utf16(3) {
+        Err(err) => assert_eq!(err, Error::ParseError),
+        _ => panic!("Test shouldn't reach here"),
     }
 }
