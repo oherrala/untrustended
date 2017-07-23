@@ -56,7 +56,7 @@ pub trait ReaderExt {
     /// method provided.
     fn read_byte(&mut self) -> Result<u8, untrusted::EndOfInput>;
 
-    /// Reads 8 bit unsigned integer. Same as `read_byte`.
+    /// Reads 8 bit unsigned integer.
     ///
     /// Returns Ok(v) where v is the value read, or Err(Error::EndOfInput) if
     /// the Reader is at the end of the input.
@@ -129,6 +129,15 @@ pub trait ReaderExt {
         let b2 = self.read_u32le()? as u64;
         let b1 = self.read_u32le()? as u64;
         Ok((b1 << 32) + b2)
+    }
+
+    /// Reads 8 bit signed integer.
+    ///
+    /// Returns Ok(v) where v is the value read, or Err(Error::EndOfInput) if
+    /// the Reader is at the end of the input.
+    #[inline]
+    fn read_i8(&mut self) -> Result<i8, Error> {
+        Ok(self.read_u8()? as i8)
     }
 
     /// Reads 16 bit signed integer in big endian.

@@ -66,6 +66,13 @@ quickcheck! {
         xs == reader.read_u64le().expect("read_u64le")
     }
 
+    fn prop_read_i8(xs: i8) -> bool {
+        let mut buf = Vec::new();
+        buf.write_i8(xs).expect("write_i8");
+        let mut reader = reader(&buf);
+        xs == reader.read_i8().expect("read_i8")
+    }
+
     fn prop_read_i16be(xs: i16) -> bool {
         let mut buf = Vec::new();
         buf.write_i16::<BigEndian>(xs).expect("write_i16");
@@ -132,6 +139,25 @@ quickcheck! {
         let len = buf.len();
         let mut reader = reader(&buf);
         xs == reader.read_utf16(len).expect("read_utf16")
+    }
+}
+
+#[test]
+fn read_i8_specials() {
+    let specials = vec![
+        i8::min_value(),
+        i8::min_value() + 1,
+        -1,
+        0,
+        1,
+        i8::max_value() - 1,
+        i8::max_value(),
+    ];
+    for s in specials {
+        let mut buf = Vec::new();
+        buf.write_i8(s).expect("write_i8");
+        let mut reader = reader(&buf);
+        assert_eq!(s, reader.read_i8().expect("read_i8"));
     }
 }
 
