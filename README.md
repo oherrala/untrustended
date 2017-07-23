@@ -1,4 +1,4 @@
-# untrustended [![CircleCI](https://circleci.com/gh/oherrala/untrustended/tree/master.svg?style=shield)](https://circleci.com/gh/oherrala/untrustended/tree/master)
+# untrustended [![Crates.io](https://img.shields.io/crates/v/untrustended.svg)](https://crates.io/crates/untrustended)[![CircleCI](https://circleci.com/gh/oherrala/untrustended/tree/master.svg?style=shield)](https://circleci.com/gh/oherrala/untrustended/tree/master)
 
 Untrustended is a compilation of primitives for parsing values from untrusted
 input. It's building on top of [untrusted](https://crates.io/crates/untrusted)'s
