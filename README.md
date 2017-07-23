@@ -6,3 +6,11 @@ input. It's building on top of [untrusted](https://crates.io/crates/untrusted)'s
 
 Please, consult [untrusted](https://crates.io/crates/untrusted)'s documentation
 about how to use that crate before attempting to use this one.
+
+# Example
+
+See usage example in untrustended [documentation](https://docs.rs/untrustended/).
+
+# License
+
+See [LICENSE.txt](LICENSE.txt). ISC license.

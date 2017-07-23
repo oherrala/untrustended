@@ -7,7 +7,13 @@ license = "ISC"
 description = "Untrustended - Untrusted Extended. A compilation of primitives for parsing values from untrusted input."
 homepage = "https://github.com/oherrala/untrustended#readme"
 repository = "https://github.com/oherrala/untrustended"
+documentation = "https://docs.rs/untrustended/"
 readme = "README.md"
+keywords = ["untrusted", "input", "parsing", "primitives"]
+categories = ["parsing", "parser-implementations"]
+
+[badges]
+circle-ci = { repository = "oherrala/untrustended" }
 
 [dependencies]
 untrusted = "0.5.0"

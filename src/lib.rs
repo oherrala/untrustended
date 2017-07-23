@@ -3,7 +3,7 @@
 //! Untrustended is a compilation of primitives for parsing values from
 //! untrusted input. It's building on top of
 //! [untrusted](https://crates.io/crates/untrusted)'s
-//! [`Reader::read_byte()`](../untrusted/struct.Reader.html#method.read_byte).
+//! [`Reader::read_byte()`](https://briansmith.org/rustdoc/untrusted/struct.Reader.html#method.read_byte).
 //!
 //! Please, consult [untrusted](https://crates.io/crates/untrusted)'s
 //! documentation about how to use that crate before attempting to use this one.
@@ -50,7 +50,7 @@ pub use error::Error;
 use std::net::{Ipv4Addr, Ipv6Addr};
 
 /// A trait extending [untrusted](https://crates.io/crates/untrusted)'s
-/// [`Reader`](../untrusted/struct.Reader.html).
+/// [`Reader`](https://briansmith.org/rustdoc/untrusted/struct.Reader.html).
 pub trait ReaderExt {
     /// Read one byte. This is the basic building block of every other read
     /// method provided.
@@ -258,12 +258,20 @@ pub trait ReaderExt {
     }
 
     /// Reads IPv4 address in big endian format.
+    ///
+    /// Returns Ok(v) where v is a `Ipv4Addr`, or Err(Error::EndOfInput) if the
+    /// Reader encountered an end of the input while reading, or
+    /// Err(Error::ParseError) if parsing of address failed.
     fn read_ipv4addr(&mut self) -> Result<Ipv4Addr, Error> {
         let bytes = self.read_u32be()?;
         Ok(Ipv4Addr::from(bytes))
     }
 
     /// Reads IPv6 address in big endian format.
+    ///
+    /// Returns Ok(v) where v is a `Ipv6Addr`, or Err(Error::EndOfInput) if the
+    /// Reader encountered an end of the input while reading, or
+    /// Err(Error::ParseError) if parsing of address failed.
     fn read_ipv6addr(&mut self) -> Result<Ipv6Addr, Error> {
         let mut b = [0u16; 8];
         for i in &mut b {
