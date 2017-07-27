@@ -46,6 +46,16 @@ quickcheck! {
         xs == reader.read_u32be().expect("read_u32be")
     }
 
+    fn prop_read_u48be(xs: (u16, u16, u16)) -> bool {
+        let mut buf = Vec::new();
+        let ys = ((xs.0 as u64) << 32) + ((xs.1 as u64) << 16) + (xs.2 as u64);
+        buf.write_u16::<BigEndian>(xs.0).expect("write_u16");
+        buf.write_u16::<BigEndian>(xs.1).expect("write_u16");
+        buf.write_u16::<BigEndian>(xs.2).expect("write_u16");
+        let mut reader = reader(&buf);
+        ys == reader.read_u48be().expect("read_u48be")
+    }
+
     fn prop_read_u64be(xs: u64) -> bool {
         let mut buf = Vec::new();
         buf.write_u64::<BigEndian>(xs).expect("write_u64");
@@ -73,6 +83,16 @@ quickcheck! {
         buf.write_u32::<LittleEndian>(xs).expect("write_u32");
         let mut reader = reader(&buf);
         xs == reader.read_u32le().expect("read_u32le")
+    }
+
+    fn prop_read_u48le(xs: (u16, u16, u16)) -> bool {
+        let mut buf = Vec::new();
+        let ys = ((xs.0 as u64) << 32) + ((xs.1 as u64) << 16) + (xs.2 as u64);
+        buf.write_u16::<LittleEndian>(xs.2).expect("write_u16");
+        buf.write_u16::<LittleEndian>(xs.1).expect("write_u16");
+        buf.write_u16::<LittleEndian>(xs.0).expect("write_u16");
+        let mut reader = reader(&buf);
+        ys == reader.read_u48le().expect("read_u48le")
     }
 
     fn prop_read_u64le(xs: u64) -> bool {
@@ -111,6 +131,16 @@ quickcheck! {
         xs == reader.read_i32be().expect("read_i32be")
     }
 
+    fn prop_read_i48be(xs: (u16, u16, u16)) -> bool {
+        let mut buf = Vec::new();
+        let ys = ((xs.0 as i64) << 32) + ((xs.1 as i64) << 16) + (xs.2 as i64);
+        buf.write_u16::<BigEndian>(xs.0).expect("write_u16");
+        buf.write_u16::<BigEndian>(xs.1).expect("write_u16");
+        buf.write_u16::<BigEndian>(xs.2).expect("write_u16");
+        let mut reader = reader(&buf);
+        ys == reader.read_i48be().expect("read_i48be")
+    }
+
     fn prop_read_i64be(xs: i64) -> bool {
         let mut buf = Vec::new();
         buf.write_i64::<BigEndian>(xs).expect("write_i64");
@@ -138,6 +168,16 @@ quickcheck! {
         buf.write_i32::<LittleEndian>(xs).expect("write_i32");
         let mut reader = reader(&buf);
         xs == reader.read_i32le().expect("read_i32le")
+    }
+
+    fn prop_read_i48le(xs: (u16, u16, u16)) -> bool {
+        let mut buf = Vec::new();
+        let ys = ((xs.0 as i64) << 32) + ((xs.1 as i64) << 16) + (xs.2 as i64);
+        buf.write_u16::<LittleEndian>(xs.2).expect("write_u16");
+        buf.write_u16::<LittleEndian>(xs.1).expect("write_u16");
+        buf.write_u16::<LittleEndian>(xs.0).expect("write_u16");
+        let mut reader = reader(&buf);
+        ys == reader.read_i48le().expect("read_i48le")
     }
 
     fn prop_read_i64le(xs: i64) -> bool {
@@ -243,6 +283,30 @@ fn read_i32be_specials() {
 }
 
 #[test]
+fn read_i48be_specials() {
+    let specials = vec![
+        -140_737_488_355_328,
+        -140_737_488_355_327,
+        -1,
+        0,
+        1,
+        140_737_488_355_326,
+        140_737_488_355_327,
+    ];
+    for s in specials {
+        let mut buf = Vec::new();
+        let b1: u16 = ((s & 0xFFFF_0000_0000) >> 32) as u16;
+        let b2: u16 = ((s & 0x0000_FFFF_0000) >> 16) as u16;
+        let b3: u16 = (s & 0x0000_0000_FFFF) as u16;
+        buf.write_u16::<BigEndian>(b1).expect("write_u16");
+        buf.write_u16::<BigEndian>(b2).expect("write_u16");
+        buf.write_u16::<BigEndian>(b3).expect("write_u16");
+        let mut reader = reader(&buf);
+        assert_eq!(s, reader.read_i48be().expect("read_i48be"));
+    }
+}
+
+#[test]
 fn read_i64be_specials() {
     let specials = vec![
         i64::min_value(),
@@ -309,6 +373,30 @@ fn read_i32le_specials() {
         buf.write_i32::<LittleEndian>(s).expect("write_i32");
         let mut reader = reader(&buf);
         assert_eq!(s, reader.read_i32le().expect("read_i32le"));
+    }
+}
+
+#[test]
+fn read_i48le_specials() {
+    let specials = vec![
+        -140_737_488_355_328,
+        -140_737_488_355_327,
+        -1,
+        0,
+        1,
+        140_737_488_355_326,
+        140_737_488_355_327,
+    ];
+    for s in specials {
+        let mut buf = Vec::new();
+        let b1: u16 = ((s & 0xFFFF_0000_0000) >> 32) as u16;
+        let b2: u16 = ((s & 0x0000_FFFF_0000) >> 16) as u16;
+        let b3: u16 = (s & 0x0000_0000_FFFF) as u16;
+        buf.write_u16::<LittleEndian>(b3).expect("write_u16");
+        buf.write_u16::<LittleEndian>(b2).expect("write_u16");
+        buf.write_u16::<LittleEndian>(b1).expect("write_u16");
+        let mut reader = reader(&buf);
+        assert_eq!(s, reader.read_i48le().expect("read_i48le"));
     }
 }
 

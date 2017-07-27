@@ -101,6 +101,20 @@ pub trait ReaderExt {
         Ok((b1 << 16) + b2)
     }
 
+    /// Reads 48 bit unsigned integer in big endian.
+    ///
+    /// This method reads six bytes, but returns `u64` because Rust doesn't have
+    /// 48 bit integer type.
+    ///
+    /// Returns Ok(v) where v is the value read, or Err(Error::EndOfInput) if
+    /// the Reader encountered an end of the input while reading.
+    #[inline]
+    fn read_u48be(&mut self) -> Result<u64, Error> {
+        let b1 = self.read_u24be()? as u64;
+        let b2 = self.read_u24be()? as u64;
+        Ok((b1 << 24) + b2)
+    }
+
     /// Reads 64 bit unsigned integer in big endian.
     ///
     /// Returns Ok(v) where v is the value read, or Err(Error::EndOfInput) if
@@ -146,6 +160,20 @@ pub trait ReaderExt {
         let b2 = self.read_u16le()? as u32;
         let b1 = self.read_u16le()? as u32;
         Ok((b1 << 16) + b2)
+    }
+
+    /// Reads 48 bit unsigned integer in little endian.
+    ///
+    /// This method reads six bytes, but returns `u64` because Rust doesn't have
+    /// 48 bit integer type.
+    ///
+    /// Returns Ok(v) where v is the value read, or Err(Error::EndOfInput) if
+    /// the Reader encountered an end of the input while reading.
+    #[inline]
+    fn read_u48le(&mut self) -> Result<u64, Error> {
+        let b2 = self.read_u24le()? as u64;
+        let b1 = self.read_u24le()? as u64;
+        Ok((b1 << 24) + b2)
     }
 
     /// Reads 64 bit unsigned integer in little endian.
@@ -204,6 +232,20 @@ pub trait ReaderExt {
         Ok((b1 << 16) + b2)
     }
 
+    /// Reads 48 bit signed integer in big endian.
+    ///
+    /// This method reads six bytes, but returns `i64` because Rust doesn't have
+    /// 48 bit integer type.
+    ///
+    /// Returns Ok(v) where v is the value read, or Err(Error::EndOfInput) if
+    /// the Reader encountered an end of the input while reading.
+    #[inline]
+    fn read_i48be(&mut self) -> Result<i64, Error> {
+        let b1 = self.read_i24be()? as i64;
+        let b2 = self.read_u24be()? as i64;
+        Ok((b1 << 24) + b2)
+    }
+
     /// Reads 64 bit signed integer in big endian.
     ///
     /// Returns Ok(v) where v is the value read, or Err(Error::EndOfInput) if
@@ -249,6 +291,20 @@ pub trait ReaderExt {
         let b2 = self.read_u16le()? as i32;
         let b1 = self.read_u16le()? as i32;
         Ok((b1 << 16) + b2)
+    }
+
+    /// Reads 48 bit signed integer in little endian.
+    ///
+    /// This method reads six bytes, but returns `i64` because Rust doesn't have
+    /// 48 bit integer type.
+    ///
+    /// Returns Ok(v) where v is the value read, or Err(Error::EndOfInput) if
+    /// the Reader encountered an end of the input while reading.
+    #[inline]
+    fn read_i48le(&mut self) -> Result<i64, Error> {
+        let b2 = self.read_u24le()? as i64;
+        let b1 = self.read_i24le()? as i64;
+        Ok((b1 << 24) + b2)
     }
 
     /// Reads 64 bit signed integer in little endian.
