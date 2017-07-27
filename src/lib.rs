@@ -188,7 +188,7 @@ pub trait ReaderExt {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_i24be(&mut self) -> Result<i32, Error> {
-        let b1 = self.read_u16be()? as i32;
+        let b1 = self.read_i16be()? as i32;
         let b2 = self.read_u8()? as i32;
         Ok((b1 << 8) + b2)
     }
@@ -236,7 +236,7 @@ pub trait ReaderExt {
     #[inline]
     fn read_i24le(&mut self) -> Result<i32, Error> {
         let b2 = self.read_u8()? as i32;
-        let b1 = self.read_u16le()? as i32;
+        let b1 = self.read_i16le()? as i32;
         Ok((b1 << 8) + b2)
     }
 

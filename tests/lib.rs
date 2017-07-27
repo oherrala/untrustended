@@ -213,6 +213,17 @@ fn read_i16be_specials() {
 }
 
 #[test]
+fn read_i24be_specials() {
+    let specials = vec![-8_388_608, -8_388_607, -1, 0, 1, 8_388_606, 8_388_607];
+    for s in specials {
+        let mut buf = Vec::new();
+        buf.write_i24::<BigEndian>(s).expect("write_i24");
+        let mut reader = reader(&buf);
+        assert_eq!(s, reader.read_i24be().expect("read_i24be"));
+    }
+}
+
+#[test]
 fn read_i32be_specials() {
     let specials = vec![
         i32::min_value(),
@@ -267,6 +278,17 @@ fn read_i16le_specials() {
         buf.write_i16::<LittleEndian>(s).expect("write_i16");
         let mut reader = reader(&buf);
         assert_eq!(s, reader.read_i16le().expect("read_i16le"));
+    }
+}
+
+#[test]
+fn read_i24le_specials() {
+    let specials = vec![-8_388_608, -8_388_607, -1, 0, 1, 8_388_606, 8_388_607];
+    for s in specials {
+        let mut buf = Vec::new();
+        buf.write_i24::<LittleEndian>(s).expect("write_i24");
+        let mut reader = reader(&buf);
+        assert_eq!(s, reader.read_i24le().expect("read_i24le"));
     }
 }
 
