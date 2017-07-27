@@ -188,11 +188,8 @@ quickcheck! {
     }
 
     fn prop_read_bytes(xs: Vec<u8>) -> bool {
-        let mut buf = Vec::new();
-        buf.write_all(&xs).expect("write_all");
-        let len = buf.len();
-        let mut reader = reader(&buf);
-        xs == reader.read_bytes(len).expect("read_bytes")
+        let mut reader = reader(&xs);
+        xs == reader.read_bytes(xs.len()).expect("read_bytes")
     }
 
     fn prop_read_utf8(xs: String) -> bool {

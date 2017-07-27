@@ -43,7 +43,7 @@
 #![deny(warnings, missing_docs)]
 
 extern crate untrusted;
-use untrusted::Reader;
+use untrusted::{Reader, Input, EndOfInput};
 
 pub use error::Error;
 
@@ -51,10 +51,16 @@ use std::net::{Ipv4Addr, Ipv6Addr};
 
 /// A trait extending [untrusted](https://crates.io/crates/untrusted)'s
 /// [`Reader`](https://briansmith.org/rustdoc/untrusted/struct.Reader.html).
-pub trait ReaderExt {
+pub trait ReaderExt<'a> {
     /// Read one byte. This is the basic building block of every other read
     /// method provided.
-    fn read_byte(&mut self) -> Result<u8, untrusted::EndOfInput>;
+    fn read_byte(&mut self) -> Result<u8, EndOfInput>;
+
+    /// Skips num_bytes of the input, returning the skipped input as an Input.
+    ///
+    /// Returns Ok(i) where i is an Input if there are at least num_bytes of
+    /// input remaining, and Err(EndOfInput) otherwise.
+    fn skip_and_get_input(&mut self, num_bytes: usize) -> Result<Input<'a>, EndOfInput>;
 
     /// Reads 8 bit unsigned integer.
     ///
@@ -320,35 +326,30 @@ pub trait ReaderExt {
 
     /// Reads given amount of bytes.
     ///
-    /// Returns Ok(v) where v is a `Vec<u8>` of bytes read, or
+    /// Returns Ok(v) where v is a `&[u8]` of bytes read, or
     /// Err(Error::EndOfInput) if the Reader encountered an end of the input
     /// while reading.
     #[inline]
-    fn read_bytes(&mut self, length: usize) -> Result<Vec<u8>, Error> {
-        let mut buf = Vec::with_capacity(length);
-        for _ in 0..length {
-            let b = self.read_byte()?;
-            buf.push(b);
-        }
-        Ok(buf)
+    fn read_bytes(&mut self, num_bytes: usize) -> Result<&'a [u8], Error> {
+        Ok(self.skip_and_get_input(num_bytes).map(|v| v.as_slice_less_safe())?)
     }
 
     /// Reads bytes as UTF-8 String.
     ///
-    /// Length is the amount of bytes to read, not the amount of UTF-8
+    /// Length required is the amount of bytes to read, not the amount of UTF-8
     /// characters.
     ///
     /// Read bytes are validated to be valid UTF-8 by
-    /// [String::from_utf8](https://doc.rust-lang.org/std/string/struct.String.html#method.from_utf8)
+    /// [`str::from_utf8`](https://doc.rust-lang.org/std/str/fn.from_utf8.html)
     /// method.
     ///
-    /// Returns Ok(v) where v is a `String` of bytes read, or
+    /// Returns Ok(v) where v is a `&str` of bytes read, or
     /// Err(Error::EndOfInput) if the Reader encountered an end of the input
     /// while reading, or Err(Error::ParseError) if UTF-8 parsing failed.
     #[inline]
-    fn read_utf8(&mut self, length: usize) -> Result<String, Error> {
-        let buf = self.read_bytes(length)?;
-        String::from_utf8(buf).map_err(From::from)
+    fn read_utf8(&mut self, num_bytes: usize) -> Result<&'a str, Error> {
+        let buf = self.read_bytes(num_bytes)?;
+        std::str::from_utf8(buf).map_err(From::from)
     }
 
     /// Reads bytes as UTF-16 String.
