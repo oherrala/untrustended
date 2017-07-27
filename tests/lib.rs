@@ -31,6 +31,14 @@ quickcheck! {
         xs == reader.read_u16be().expect("read_u16be")
     }
 
+    fn prop_read_u24be(xs: (u8, u8, u8)) -> bool {
+        let mut buf = Vec::new();
+        let ys = ((xs.0 as u32) << 16) + ((xs.1 as u32) << 8) + (xs.2 as u32);
+        buf.write_u24::<BigEndian>(ys).expect("write_u24");
+        let mut reader = reader(&buf);
+        ys == reader.read_u24be().expect("read_u24be")
+    }
+
     fn prop_read_u32be(xs: u32) -> bool {
         let mut buf = Vec::new();
         buf.write_u32::<BigEndian>(xs).expect("write_u32");
@@ -50,6 +58,14 @@ quickcheck! {
         buf.write_u16::<LittleEndian>(xs).expect("write_u16");
         let mut reader = reader(&buf);
         xs == reader.read_u16le().expect("read_u16le")
+    }
+
+    fn prop_read_u24le(xs: (u8, u8, u8)) -> bool {
+        let mut buf = Vec::new();
+        let ys = ((xs.0 as u32) << 16) + ((xs.1 as u32) << 8) + (xs.2 as u32);
+        buf.write_u24::<LittleEndian>(ys).expect("write_u24");
+        let mut reader = reader(&buf);
+        ys == reader.read_u24le().expect("read_u24le")
     }
 
     fn prop_read_u32le(xs: u32) -> bool {
@@ -80,6 +96,14 @@ quickcheck! {
         xs == reader.read_i16be().expect("read_i16be")
     }
 
+    fn prop_read_i24be(xs: (u8, u8, u8)) -> bool {
+        let mut buf = Vec::new();
+        let ys = ((xs.0 as i32) << 16) + ((xs.1 as i32) << 8) + (xs.2 as i32);
+        buf.write_i24::<BigEndian>(ys).expect("write_i24");
+        let mut reader = reader(&buf);
+        ys == reader.read_i24be().expect("read_i24be")
+    }
+
    fn prop_read_i32be(xs: i32) -> bool {
         let mut buf = Vec::new();
         buf.write_i32::<BigEndian>(xs).expect("write_i32");
@@ -99,6 +123,14 @@ quickcheck! {
         buf.write_i16::<LittleEndian>(xs).expect("write_i16");
         let mut reader = reader(&buf);
         xs == reader.read_i16le().expect("read_i16le")
+    }
+
+    fn prop_read_i24le(xs: (u8, u8, u8)) -> bool {
+        let mut buf = Vec::new();
+        let ys = ((xs.0 as i32) << 16) + ((xs.1 as i32) << 8) + (xs.2 as i32);
+        buf.write_i24::<LittleEndian>(ys).expect("write_i24");
+        let mut reader = reader(&buf);
+        ys == reader.read_i24le().expect("read_i24le")
     }
 
     fn prop_read_i32le(xs: i32) -> bool {
