@@ -15,6 +15,10 @@ categories = ["parsing", "parser-implementations"]
 [badges]
 circle-ci = { repository = "oherrala/untrustended" }
 
+[features]
+default = ["use_std"]
+use_std = []
+
 [dependencies]
 untrusted = "0.5.0"
 

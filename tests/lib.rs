@@ -1,3 +1,5 @@
+#![deny(warnings)]
+
 extern crate byteorder;
 #[macro_use]
 extern crate quickcheck;
@@ -6,9 +8,8 @@ extern crate untrusted;
 extern crate untrustended;
 
 use untrusted::{Input, Reader};
-use untrustended::{ReaderExt, Error};
+use untrustended::ReaderExt;
 
-use std::io::Write;
 use byteorder::{WriteBytesExt, BigEndian, LittleEndian};
 
 #[inline]
@@ -192,7 +193,9 @@ quickcheck! {
         xs == reader.read_bytes(xs.len()).expect("read_bytes")
     }
 
+    #[cfg(feature = "use_std")]
     fn prop_read_utf8(xs: String) -> bool {
+        use std::io::Write;
         let mut buf = Vec::new();
         buf.write_all(xs.as_bytes()).expect("write_all");
         let len = buf.len();
@@ -200,6 +203,7 @@ quickcheck! {
         xs == reader.read_utf8(len).expect("read_utf8")
     }
 
+    #[cfg(feature = "use_std")]
     fn prop_read_utf16(xs: String) -> bool {
         let mut buf = Vec::new();
         for short in xs.encode_utf16() {
@@ -417,17 +421,20 @@ fn read_i64le_specials() {
 }
 
 #[test]
+#[cfg(feature = "use_std")]
 fn read_utf16_with_odd_length() {
     let mut reader = reader(&[]);
     match reader.read_utf16(3) {
-        Err(err) => assert_eq!(err, Error::ParseError),
+        Err(err) => assert_eq!(err, untrustended::Error::ParseError),
         _ => panic!("Test shouldn't reach here"),
     }
 }
 
 #[test]
+#[cfg(feature = "use_std")]
 fn read_ipv4addr() {
     use std::net::Ipv4Addr;
+    use std::io::Write;
     let addrs: Vec<Ipv4Addr> = vec![
         "0.0.0.0".parse().expect("parse ipv4 addr"),
         "192.0.2.1".parse().expect("parse ipv4 addr"),
@@ -444,12 +451,18 @@ fn read_ipv4addr() {
 }
 
 #[test]
+#[cfg(feature = "use_std")]
 fn read_ipv6addr() {
     use std::net::Ipv6Addr;
+    use std::io::Write;
     let addrs: Vec<Ipv6Addr> = vec![
         "2001:DB8::".parse().expect("parse ipv6 addr"),
-        "2001:DB8:ff00:00ff:f00f:0ff0:0000:ffff".parse().expect("parse ipv6 addr"),
-        "2001:DB8:ffff:ffff:ffff:ffff:ffff:ffff".parse().expect("parse ipv6 addr"),
+        "2001:DB8:ff00:00ff:f00f:0ff0:0000:ffff".parse().expect(
+            "parse ipv6 addr"
+        ),
+        "2001:DB8:ffff:ffff:ffff:ffff:ffff:ffff".parse().expect(
+            "parse ipv6 addr"
+        ),
     ];
     for addr in addrs {
         let mut buf = Vec::new();

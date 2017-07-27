@@ -42,11 +42,14 @@
 
 #![deny(warnings, missing_docs)]
 
+#![cfg_attr(not(feature = "use_std"), no_std)]
+
 extern crate untrusted;
 use untrusted::{Reader, Input, EndOfInput};
 
 pub use error::Error;
 
+#[cfg(feature = "use_std")]
 use std::net::{Ipv4Addr, Ipv6Addr};
 
 /// A trait extending [untrusted](https://crates.io/crates/untrusted)'s
@@ -331,7 +334,9 @@ pub trait ReaderExt<'a> {
     /// while reading.
     #[inline]
     fn read_bytes(&mut self, num_bytes: usize) -> Result<&'a [u8], Error> {
-        Ok(self.skip_and_get_input(num_bytes).map(|v| v.as_slice_less_safe())?)
+        Ok(self.skip_and_get_input(num_bytes).map(
+            |v| v.as_slice_less_safe(),
+        )?)
     }
 
     /// Reads bytes as UTF-8 String.
@@ -359,18 +364,19 @@ pub trait ReaderExt<'a> {
     /// returned if it's odd.
     ///
     /// Read bytes are validated to be valid UTF-16 by
-    /// [String::from_utf16](https://doc.rust-lang.org/std/string/struct.String.html#method.from_utf16)
+    /// [`String::from_utf16`](https://doc.rust-lang.org/std/string/struct.String.html#method.from_utf16)
     /// method.
     ///
     /// Returns Ok(v) where v is a `String` of bytes read, or
     /// Err(Error::EndOfInput) if the Reader encountered an end of the input
     /// while reading, or Err(Error::ParseError) if UTF-8 parsing failed.
     #[inline]
-    fn read_utf16(&mut self, length: usize) -> Result<String, Error> {
-        if (length % 2) != 0 {
+    #[cfg(feature = "use_std")]
+    fn read_utf16(&mut self, num_bytes: usize) -> Result<String, Error> {
+        if (num_bytes % 2) != 0 {
             return Err(Error::ParseError);
         }
-        let len16 = length / 2;
+        let len16 = num_bytes / 2;
         let mut buf: Vec<u16> = Vec::with_capacity(len16);
         for _ in 0..len16 {
             let b = self.read_u16be()?;
@@ -384,6 +390,8 @@ pub trait ReaderExt<'a> {
     /// Returns Ok(v) where v is a `Ipv4Addr`, or Err(Error::EndOfInput) if the
     /// Reader encountered an end of the input while reading, or
     /// Err(Error::ParseError) if parsing of address failed.
+    #[inline]
+    #[cfg(feature = "use_std")]
     fn read_ipv4addr(&mut self) -> Result<Ipv4Addr, Error> {
         let bytes = self.read_u32be()?;
         Ok(Ipv4Addr::from(bytes))
@@ -394,6 +402,8 @@ pub trait ReaderExt<'a> {
     /// Returns Ok(v) where v is a `Ipv6Addr`, or Err(Error::EndOfInput) if the
     /// Reader encountered an end of the input while reading, or
     /// Err(Error::ParseError) if parsing of address failed.
+    #[inline]
+    #[cfg(feature = "use_std")]
     fn read_ipv6addr(&mut self) -> Result<Ipv6Addr, Error> {
         let mut b = [0u16; 8];
         for i in &mut b {
@@ -404,16 +414,25 @@ pub trait ReaderExt<'a> {
     }
 }
 
-impl<'a> ReaderExt for Reader<'a> {
+impl<'a> ReaderExt<'a> for Reader<'a> {
     #[inline]
     fn read_byte(&mut self) -> Result<u8, untrusted::EndOfInput> {
         self.read_byte()
     }
+
+    #[inline]
+    fn skip_and_get_input(&mut self, num_bytes: usize) -> Result<Input<'a>, EndOfInput> {
+        self.skip_and_get_input(num_bytes)
+    }
 }
 
 mod error {
+    #[cfg(feature = "use_std")]
     use std::fmt;
-    use std::string::{FromUtf8Error, FromUtf16Error};
+    #[cfg(feature = "use_std")]
+    use std::str::Utf8Error;
+    #[cfg(feature = "use_std")]
+    use std::string::FromUtf16Error;
     use untrusted::EndOfInput;
 
     /// Possible errors raised by `ReaderExt`.
@@ -429,6 +448,7 @@ mod error {
         UnknownError,
     }
 
+    #[cfg(feature = "use_std")]
     impl fmt::Display for Error {
         fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
             write!(f, "reading failed with {:?}", self)
@@ -441,12 +461,14 @@ mod error {
         }
     }
 
-    impl From<FromUtf8Error> for Error {
-        fn from(_: FromUtf8Error) -> Self {
+    #[cfg(feature = "use_std")]
+    impl From<Utf8Error> for Error {
+        fn from(_: Utf8Error) -> Self {
             Error::ParseError
         }
     }
 
+    #[cfg(feature = "use_std")]
     impl From<FromUtf16Error> for Error {
         fn from(_: FromUtf16Error) -> Self {
             Error::ParseError
