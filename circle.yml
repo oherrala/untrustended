@@ -22,6 +22,7 @@ dependencies:
 test:
   override:
     - cargo test
+    - cargo test --no-default-features
     - cargo +beta test
     - cargo +nightly test
     - cargo audit
