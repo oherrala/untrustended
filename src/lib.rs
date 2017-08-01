@@ -352,6 +352,7 @@ pub trait ReaderExt<'a> {
     /// Err(Error::EndOfInput) if the Reader encountered an end of the input
     /// while reading, or Err(Error::ParseError) if UTF-8 parsing failed.
     #[inline]
+    #[cfg(feature = "use_std")]
     fn read_utf8(&mut self, num_bytes: usize) -> Result<&'a str, Error> {
         let buf = self.read_bytes(num_bytes)?;
         std::str::from_utf8(buf).map_err(From::from)
