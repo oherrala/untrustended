@@ -188,9 +188,9 @@ quickcheck! {
         xs == reader.read_i64le().expect("read_i64le")
     }
 
-    fn prop_read_bytes(xs: Vec<u8>) -> bool {
+    fn prop_read_bytes_less_safe(xs: Vec<u8>) -> bool {
         let mut reader = reader(&xs);
-        xs == reader.read_bytes(xs.len()).expect("read_bytes")
+        xs == reader.read_bytes_less_safe(xs.len()).expect("read_bytes_less_safes")
     }
 
     #[cfg(feature = "use_std")]

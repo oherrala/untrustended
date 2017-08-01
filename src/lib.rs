@@ -329,11 +329,15 @@ pub trait ReaderExt<'a> {
 
     /// Reads given amount of bytes.
     ///
+    /// Access the given amount of bytes as a slice so it can be processed by
+    /// functions that are not written using the untrusted's Input/Reader
+    /// framework.
+    ///
     /// Returns Ok(v) where v is a `&[u8]` of bytes read, or
     /// Err(Error::EndOfInput) if the Reader encountered an end of the input
     /// while reading.
     #[inline]
-    fn read_bytes(&mut self, num_bytes: usize) -> Result<&'a [u8], Error> {
+    fn read_bytes_less_safe(&mut self, num_bytes: usize) -> Result<&'a [u8], Error> {
         Ok(self.skip_and_get_input(num_bytes).map(
             |v| v.as_slice_less_safe(),
         )?)
@@ -354,7 +358,7 @@ pub trait ReaderExt<'a> {
     #[inline]
     #[cfg(feature = "use_std")]
     fn read_utf8(&mut self, num_bytes: usize) -> Result<&'a str, Error> {
-        let buf = self.read_bytes(num_bytes)?;
+        let buf = self.read_bytes_less_safe(num_bytes)?;
         std::str::from_utf8(buf).map_err(From::from)
     }
 
