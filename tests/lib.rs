@@ -34,7 +34,7 @@ quickcheck! {
 
     fn prop_read_u24be(xs: (u8, u8, u8)) -> bool {
         let mut buf = Vec::new();
-        let ys = ((xs.0 as u32) << 16) + ((xs.1 as u32) << 8) + (xs.2 as u32);
+        let ys = (u32::from(xs.0) << 16) + (u32::from(xs.1) << 8) + u32::from(xs.2);
         buf.write_u24::<BigEndian>(ys).expect("write_u24");
         let mut reader = reader(&buf);
         ys == reader.read_u24be().expect("read_u24be")
@@ -49,7 +49,7 @@ quickcheck! {
 
     fn prop_read_u48be(xs: (u16, u16, u16)) -> bool {
         let mut buf = Vec::new();
-        let ys = ((xs.0 as u64) << 32) + ((xs.1 as u64) << 16) + (xs.2 as u64);
+        let ys = (u64::from(xs.0) << 32) + (u64::from(xs.1) << 16) + u64::from(xs.2);
         buf.write_u16::<BigEndian>(xs.0).expect("write_u16");
         buf.write_u16::<BigEndian>(xs.1).expect("write_u16");
         buf.write_u16::<BigEndian>(xs.2).expect("write_u16");
@@ -73,7 +73,7 @@ quickcheck! {
 
     fn prop_read_u24le(xs: (u8, u8, u8)) -> bool {
         let mut buf = Vec::new();
-        let ys = ((xs.0 as u32) << 16) + ((xs.1 as u32) << 8) + (xs.2 as u32);
+        let ys = (u32::from(xs.0) << 16) + (u32::from(xs.1) << 8) + u32::from(xs.2);
         buf.write_u24::<LittleEndian>(ys).expect("write_u24");
         let mut reader = reader(&buf);
         ys == reader.read_u24le().expect("read_u24le")
@@ -88,7 +88,7 @@ quickcheck! {
 
     fn prop_read_u48le(xs: (u16, u16, u16)) -> bool {
         let mut buf = Vec::new();
-        let ys = ((xs.0 as u64) << 32) + ((xs.1 as u64) << 16) + (xs.2 as u64);
+        let ys = (u64::from(xs.0) << 32) + (u64::from(xs.1) << 16) + u64::from(xs.2);
         buf.write_u16::<LittleEndian>(xs.2).expect("write_u16");
         buf.write_u16::<LittleEndian>(xs.1).expect("write_u16");
         buf.write_u16::<LittleEndian>(xs.0).expect("write_u16");
@@ -119,7 +119,7 @@ quickcheck! {
 
     fn prop_read_i24be(xs: (u8, u8, u8)) -> bool {
         let mut buf = Vec::new();
-        let ys = ((xs.0 as i32) << 16) + ((xs.1 as i32) << 8) + (xs.2 as i32);
+        let ys = (i32::from(xs.0) << 16) + (i32::from(xs.1) << 8) + i32::from(xs.2);
         buf.write_i24::<BigEndian>(ys).expect("write_i24");
         let mut reader = reader(&buf);
         ys == reader.read_i24be().expect("read_i24be")
@@ -134,7 +134,7 @@ quickcheck! {
 
     fn prop_read_i48be(xs: (u16, u16, u16)) -> bool {
         let mut buf = Vec::new();
-        let ys = ((xs.0 as i64) << 32) + ((xs.1 as i64) << 16) + (xs.2 as i64);
+        let ys = (i64::from(xs.0) << 32) + (i64::from(xs.1) << 16) + i64::from(xs.2);
         buf.write_u16::<BigEndian>(xs.0).expect("write_u16");
         buf.write_u16::<BigEndian>(xs.1).expect("write_u16");
         buf.write_u16::<BigEndian>(xs.2).expect("write_u16");
@@ -158,7 +158,7 @@ quickcheck! {
 
     fn prop_read_i24le(xs: (u8, u8, u8)) -> bool {
         let mut buf = Vec::new();
-        let ys = ((xs.0 as i32) << 16) + ((xs.1 as i32) << 8) + (xs.2 as i32);
+        let ys = (i32::from(xs.0) << 16) + (i32::from(xs.1) << 8) + i32::from(xs.2);
         buf.write_i24::<LittleEndian>(ys).expect("write_i24");
         let mut reader = reader(&buf);
         ys == reader.read_i24le().expect("read_i24le")
@@ -173,7 +173,7 @@ quickcheck! {
 
     fn prop_read_i48le(xs: (u16, u16, u16)) -> bool {
         let mut buf = Vec::new();
-        let ys = ((xs.0 as i64) << 32) + ((xs.1 as i64) << 16) + (xs.2 as i64);
+        let ys = (i64::from(xs.0) << 32) + (i64::from(xs.1) << 16) + i64::from(xs.2);
         buf.write_u16::<LittleEndian>(xs.2).expect("write_u16");
         buf.write_u16::<LittleEndian>(xs.1).expect("write_u16");
         buf.write_u16::<LittleEndian>(xs.0).expect("write_u16");

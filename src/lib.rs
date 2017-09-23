@@ -108,8 +108,8 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_u16be(&mut self) -> Result<u16, Error> {
-        let b1 = self.read_u8()? as u16;
-        let b2 = self.read_u8()? as u16;
+        let b1 = u16::from(self.read_u8()?);
+        let b2 = u16::from(self.read_u8()?);
         Ok((b1 << 8) + b2)
     }
 
@@ -122,8 +122,8 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_u24be(&mut self) -> Result<u32, Error> {
-        let b1 = self.read_u16be()? as u32;
-        let b2 = self.read_u8()? as u32;
+        let b1 = u32::from(self.read_u16be()?);
+        let b2 = u32::from(self.read_u8()?);
         Ok((b1 << 8) + b2)
     }
 
@@ -133,8 +133,8 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_u32be(&mut self) -> Result<u32, Error> {
-        let b1 = self.read_u16be()? as u32;
-        let b2 = self.read_u16be()? as u32;
+        let b1 = u32::from(self.read_u16be()?);
+        let b2 = u32::from(self.read_u16be()?);
         Ok((b1 << 16) + b2)
     }
 
@@ -147,8 +147,8 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_u48be(&mut self) -> Result<u64, Error> {
-        let b1 = self.read_u24be()? as u64;
-        let b2 = self.read_u24be()? as u64;
+        let b1 = u64::from(self.read_u24be()?);
+        let b2 = u64::from(self.read_u24be()?);
         Ok((b1 << 24) + b2)
     }
 
@@ -158,8 +158,8 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_u64be(&mut self) -> Result<u64, Error> {
-        let b1 = self.read_u32be()? as u64;
-        let b2 = self.read_u32be()? as u64;
+        let b1 = u64::from(self.read_u32be()?);
+        let b2 = u64::from(self.read_u32be()?);
         Ok((b1 << 32) + b2)
     }
 
@@ -169,8 +169,8 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_u16le(&mut self) -> Result<u16, Error> {
-        let b2 = self.read_u8()? as u16;
-        let b1 = self.read_u8()? as u16;
+        let b2 = u16::from(self.read_u8()?);
+        let b1 = u16::from(self.read_u8()?);
         Ok((b1 << 8) + b2)
     }
 
@@ -183,8 +183,8 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_u24le(&mut self) -> Result<u32, Error> {
-        let b2 = self.read_u8()? as u32;
-        let b1 = self.read_u16le()? as u32;
+        let b2 = u32::from(self.read_u8()?);
+        let b1 = u32::from(self.read_u16le()?);
         Ok((b1 << 8) + b2)
     }
 
@@ -194,8 +194,8 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_u32le(&mut self) -> Result<u32, Error> {
-        let b2 = self.read_u16le()? as u32;
-        let b1 = self.read_u16le()? as u32;
+        let b2 = u32::from(self.read_u16le()?);
+        let b1 = u32::from(self.read_u16le()?);
         Ok((b1 << 16) + b2)
     }
 
@@ -208,8 +208,8 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_u48le(&mut self) -> Result<u64, Error> {
-        let b2 = self.read_u24le()? as u64;
-        let b1 = self.read_u24le()? as u64;
+        let b2 = u64::from(self.read_u24le()?);
+        let b1 = u64::from(self.read_u24le()?);
         Ok((b1 << 24) + b2)
     }
 
@@ -219,8 +219,8 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_u64le(&mut self) -> Result<u64, Error> {
-        let b2 = self.read_u32le()? as u64;
-        let b1 = self.read_u32le()? as u64;
+        let b2 = u64::from(self.read_u32le()?);
+        let b1 = u64::from(self.read_u32le()?);
         Ok((b1 << 32) + b2)
     }
 
@@ -239,8 +239,8 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_i16be(&mut self) -> Result<i16, Error> {
-        let b1 = self.read_u8()? as i16;
-        let b2 = self.read_u8()? as i16;
+        let b1 = i16::from(self.read_u8()?);
+        let b2 = i16::from(self.read_u8()?);
         Ok((b1 << 8) + b2)
     }
 
@@ -253,8 +253,8 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_i24be(&mut self) -> Result<i32, Error> {
-        let b1 = self.read_i16be()? as i32;
-        let b2 = self.read_u8()? as i32;
+        let b1 = i32::from(self.read_i16be()?);
+        let b2 = i32::from(self.read_u8()?);
         Ok((b1 << 8) + b2)
     }
 
@@ -264,8 +264,8 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_i32be(&mut self) -> Result<i32, Error> {
-        let b1 = self.read_u16be()? as i32;
-        let b2 = self.read_u16be()? as i32;
+        let b1 = i32::from(self.read_u16be()?);
+        let b2 = i32::from(self.read_u16be()?);
         Ok((b1 << 16) + b2)
     }
 
@@ -278,8 +278,8 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_i48be(&mut self) -> Result<i64, Error> {
-        let b1 = self.read_i24be()? as i64;
-        let b2 = self.read_u24be()? as i64;
+        let b1 = i64::from(self.read_i24be()?);
+        let b2 = i64::from(self.read_u24be()?);
         Ok((b1 << 24) + b2)
     }
 
@@ -289,8 +289,8 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_i64be(&mut self) -> Result<i64, Error> {
-        let b1 = self.read_u32be()? as i64;
-        let b2 = self.read_u32be()? as i64;
+        let b1 = i64::from(self.read_u32be()?);
+        let b2 = i64::from(self.read_u32be()?);
         Ok((b1 << 32) + b2)
     }
 
@@ -300,8 +300,8 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_i16le(&mut self) -> Result<i16, Error> {
-        let b2 = self.read_u8()? as i16;
-        let b1 = self.read_u8()? as i16;
+        let b2 = i16::from(self.read_u8()?);
+        let b1 = i16::from(self.read_u8()?);
         Ok((b1 << 8) + b2)
     }
 
@@ -314,8 +314,8 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_i24le(&mut self) -> Result<i32, Error> {
-        let b2 = self.read_u8()? as i32;
-        let b1 = self.read_i16le()? as i32;
+        let b2 = i32::from(self.read_u8()?);
+        let b1 = i32::from(self.read_i16le()?);
         Ok((b1 << 8) + b2)
     }
 
@@ -325,8 +325,8 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_i32le(&mut self) -> Result<i32, Error> {
-        let b2 = self.read_u16le()? as i32;
-        let b1 = self.read_u16le()? as i32;
+        let b2 = i32::from(self.read_u16le()?);
+        let b1 = i32::from(self.read_u16le()?);
         Ok((b1 << 16) + b2)
     }
 
@@ -339,8 +339,8 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_i48le(&mut self) -> Result<i64, Error> {
-        let b2 = self.read_u24le()? as i64;
-        let b1 = self.read_i24le()? as i64;
+        let b2 = i64::from(self.read_u24le()?);
+        let b1 = i64::from(self.read_i24le()?);
         Ok((b1 << 24) + b2)
     }
 
@@ -350,8 +350,8 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_i64le(&mut self) -> Result<i64, Error> {
-        let b2 = self.read_u32le()? as i64;
-        let b1 = self.read_u32le()? as i64;
+        let b2 = i64::from(self.read_u32le()?);
+        let b1 = i64::from(self.read_u32le()?);
         Ok((b1 << 32) + b2)
     }
 
