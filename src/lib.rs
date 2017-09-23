@@ -40,7 +40,35 @@
 //! }
 //! ```
 
-#![deny(warnings, missing_docs)]
+// Copy lints from untrusted
+// https://github.com/briansmith/untrusted/commit/01cde2d54e2f8fc234a8b5ea660fe510db2cf399
+
+#![allow(
+    missing_copy_implementations,
+    missing_debug_implementations,
+)]
+
+// `#[derive(...)]` uses `#[allow(unused_qualifications)]` internally.
+#![deny(
+    unused_qualifications,
+)]
+
+#![forbid(
+    anonymous_parameters,
+    box_pointers,
+    fat_ptr_transmutes,
+    legacy_directory_ownership,
+    missing_docs,
+    trivial_casts,
+    trivial_numeric_casts,
+    unsafe_code,
+    unstable_features,
+    unused_extern_crates,
+    unused_import_braces,
+    unused_results,
+    variant_size_differences,
+    warnings,
+)]
 
 #![cfg_attr(not(feature = "use_std"), no_std)]
 
@@ -421,7 +449,7 @@ pub trait ReaderExt<'a> {
 
 impl<'a> ReaderExt<'a> for Reader<'a> {
     #[inline]
-    fn read_byte(&mut self) -> Result<u8, untrusted::EndOfInput> {
+    fn read_byte(&mut self) -> Result<u8, EndOfInput> {
         self.read_byte()
     }
 
