@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
+## next release - some day
+
+### Added
+* Added [`std::error::Error`](https://doc.rust-lang.org/stable/std/error/trait.Error.html) implementation for [`untrustended::Error`](https://docs.rs/untrustended/0.2.0/untrustended/enum.Error.html) ([#2](https://github.com/oherrala/untrustended/pull/3)).
+* Added support for 128-bit integers. Support can be enabled with `i128` feature ([commit](https://github.com/oherrala/untrustended/commit/f97bc73ea539ec04988bab806f0a252981905bda)).
+
 ## [0.2.0] - 2017-09-23
 
 ### Changed
