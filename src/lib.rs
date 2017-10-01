@@ -474,7 +474,7 @@ mod error {
         /// The error type used to indicate the end of the input was reached
         /// before the operation could be completed.
         EndOfInput,
-        /// The error type used to indicate when a failed parsing while trying
+        /// The error type used to indicate when parsing failed while trying
         /// to convert bytes into a more specific type.
         ParseError,
         /// Unknown error occured.
@@ -505,6 +505,17 @@ mod error {
     impl From<FromUtf16Error> for Error {
         fn from(_: FromUtf16Error) -> Self {
             Error::ParseError
+        }
+    }
+
+    #[cfg(feature = "use_std")]
+    impl ::std::error::Error for Error {
+        fn description(&self) -> &str {
+            match *self {
+                Error::EndOfInput => "end of input was reached unexpectedly",
+                Error::ParseError => "failed to parse data into a more specific type",
+                Error::UnknownError => "reading failed with an unknown error"
+            }
         }
     }
 }
