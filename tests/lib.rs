@@ -1,5 +1,7 @@
 #![deny(warnings)]
 
+#![cfg_attr(feature="i128", feature(i128_type))]
+
 extern crate byteorder;
 #[macro_use]
 extern crate quickcheck;
@@ -64,6 +66,16 @@ quickcheck! {
         xs == reader.read_u64be().expect("read_u64be")
     }
 
+    #[cfg(feature = "i128")]
+    fn prop_read_u128be(xs: (u64, u64)) -> bool {
+        let mut buf = Vec::new();
+        let ys = (u128::from(xs.0) << 64) + u128::from(xs.1);
+        buf.write_u64::<BigEndian>(xs.0).expect("write_u64");
+        buf.write_u64::<BigEndian>(xs.1).expect("write_u64");
+        let mut reader = reader(&buf);
+        ys == reader.read_u128be().expect("read_u128be")
+    }
+
     fn prop_read_u16le(xs: u16) -> bool {
         let mut buf = Vec::new();
         buf.write_u16::<LittleEndian>(xs).expect("write_u16");
@@ -101,6 +113,16 @@ quickcheck! {
         buf.write_u64::<LittleEndian>(xs).expect("write_u64");
         let mut reader = reader(&buf);
         xs == reader.read_u64le().expect("read_u64le")
+    }
+
+    #[cfg(feature = "i128")]
+    fn prop_read_u128le(xs: (u64, u64)) -> bool {
+        let mut buf = Vec::new();
+        let ys = (u128::from(xs.0) << 64) + u128::from(xs.1);
+        buf.write_u64::<LittleEndian>(xs.1).expect("write_u64");
+        buf.write_u64::<LittleEndian>(xs.0).expect("write_u64");
+        let mut reader = reader(&buf);
+        ys == reader.read_u128le().expect("read_u128le")
     }
 
     fn prop_read_i8(xs: i8) -> bool {
@@ -149,6 +171,16 @@ quickcheck! {
         xs == reader.read_i64be().expect("read_i64be")
     }
 
+    #[cfg(feature = "i128")]
+    fn prop_read_i128be(xs: (u64, u64)) -> bool {
+        let mut buf = Vec::new();
+        let ys = (i128::from(xs.0) << 64) + i128::from(xs.1);
+        buf.write_u64::<BigEndian>(xs.0).expect("write_u64");
+        buf.write_u64::<BigEndian>(xs.1).expect("write_u64");
+        let mut reader = reader(&buf);
+        ys == reader.read_i128be().expect("read_i128be")
+    }
+
     fn prop_read_i16le(xs: i16) -> bool {
         let mut buf = Vec::new();
         buf.write_i16::<LittleEndian>(xs).expect("write_i16");
@@ -186,6 +218,16 @@ quickcheck! {
         buf.write_i64::<LittleEndian>(xs).expect("write_i64");
         let mut reader = reader(&buf);
         xs == reader.read_i64le().expect("read_i64le")
+    }
+
+    #[cfg(feature = "i128")]
+    fn prop_read_i128le(xs: (u64, u64)) -> bool {
+        let mut buf = Vec::new();
+        let ys = (i128::from(xs.0) << 64) + i128::from(xs.1);
+        buf.write_u64::<LittleEndian>(xs.1).expect("write_u64");
+        buf.write_u64::<LittleEndian>(xs.0).expect("write_u64");
+        let mut reader = reader(&buf);
+        ys == reader.read_i128le().expect("read_i128le")
     }
 
     fn prop_read_bytes_less_safe(xs: Vec<u8>) -> bool {

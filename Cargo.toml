@@ -18,10 +18,11 @@ circle-ci = { repository = "oherrala/untrustended" }
 [features]
 default = ["use_std"]
 use_std = []
+i128 = [ "byteorder/i128" ]
 
 [dependencies]
 untrusted = "0.6.0"
 
 [dev-dependencies]
 byteorder = "1.1.0"
-quickcheck = "0.4.1"
+quickcheck = { version = "0.4.1", default-features = false }

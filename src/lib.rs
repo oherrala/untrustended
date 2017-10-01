@@ -62,7 +62,6 @@
     trivial_casts,
     trivial_numeric_casts,
     unsafe_code,
-    unstable_features,
     unused_extern_crates,
     unused_import_braces,
     unused_results,
@@ -71,6 +70,7 @@
 )]
 
 #![cfg_attr(not(feature = "use_std"), no_std)]
+#![cfg_attr(feature="i128", feature(i128_type))]
 
 extern crate untrusted;
 use untrusted::{Reader, Input, EndOfInput};
@@ -163,6 +163,18 @@ pub trait ReaderExt<'a> {
         Ok((b1 << 32) + b2)
     }
 
+    /// Reads 128 bit unsigned integer in big endian.
+    ///
+    /// Returns Ok(v) where v is the value read, or Err(Error::EndOfInput) if
+    /// the Reader encountered an end of the input while reading.
+    #[cfg(feature = "i128")]
+    #[inline]
+    fn read_u128be(&mut self) -> Result<u128, Error> {
+        let b1 = u128::from(self.read_u64be()?);
+        let b2 = u128::from(self.read_u64be()?);
+        Ok((b1 << 64) + b2)
+    }
+
     /// Reads 16 bit unsigned integer in little endian.
     ///
     /// Returns Ok(v) where v is the value read, or Err(Error::EndOfInput) if
@@ -222,6 +234,18 @@ pub trait ReaderExt<'a> {
         let b2 = u64::from(self.read_u32le()?);
         let b1 = u64::from(self.read_u32le()?);
         Ok((b1 << 32) + b2)
+    }
+
+    /// Reads 128 bit unsigned integer in little endian.
+    ///
+    /// Returns Ok(v) where v is the value read, or Err(Error::EndOfInput) if
+    /// the Reader encountered an end of the input while reading.
+    #[cfg(feature = "i128")]
+    #[inline]
+    fn read_u128le(&mut self) -> Result<u128, Error> {
+        let b2 = u128::from(self.read_u64le()?);
+        let b1 = u128::from(self.read_u64le()?);
+        Ok((b1 << 64) + b2)
     }
 
     /// Reads 8 bit signed integer.
@@ -294,6 +318,18 @@ pub trait ReaderExt<'a> {
         Ok((b1 << 32) + b2)
     }
 
+    /// Reads 128 bit signed integer in big endian.
+    ///
+    /// Returns Ok(v) where v is the value read, or Err(Error::EndOfInput) if
+    /// the Reader encountered an end of the input while reading.
+    #[cfg(feature = "i128")]
+    #[inline]
+    fn read_i128be(&mut self) -> Result<i128, Error> {
+        let b1 = i128::from(self.read_u64be()?);
+        let b2 = i128::from(self.read_u64be()?);
+        Ok((b1 << 64) + b2)
+    }
+
     /// Reads 16 bit signed integer in little endian.
     ///
     /// Returns Ok(v) where v is the value read, or Err(Error::EndOfInput) if
@@ -353,6 +389,18 @@ pub trait ReaderExt<'a> {
         let b2 = i64::from(self.read_u32le()?);
         let b1 = i64::from(self.read_u32le()?);
         Ok((b1 << 32) + b2)
+    }
+
+    /// Reads 128 bit signed integer in little endian.
+    ///
+    /// Returns Ok(v) where v is the value read, or Err(Error::EndOfInput) if
+    /// the Reader encountered an end of the input while reading.
+    #[cfg(feature = "i128")]
+    #[inline]
+    fn read_i128le(&mut self) -> Result<i128, Error> {
+        let b2 = i128::from(self.read_u64le()?);
+        let b1 = i128::from(self.read_u64le()?);
+        Ok((b1 << 64) + b2)
     }
 
     /// Reads given amount of bytes.
