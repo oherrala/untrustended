@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
-## next release - some day
+## [0.2.1] - 2017-10-03
 
 ### Added
 * Added [`std::error::Error`](https://doc.rust-lang.org/stable/std/error/trait.Error.html) implementation for [`untrustended::Error`](https://docs.rs/untrustended/0.2.0/untrustended/enum.Error.html) ([#2](https://github.com/oherrala/untrustended/pull/3)).
