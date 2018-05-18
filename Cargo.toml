@@ -18,7 +18,8 @@ circle-ci = { repository = "oherrala/untrustended" }
 [features]
 default = [ "use_std" ]
 use_std = []
-i128 = [ "byteorder/i128" ]
+# i128 feature doesn't do anything anymore. This will be removed.
+i128 = []
 
 [dependencies]
 untrusted = "0.6"

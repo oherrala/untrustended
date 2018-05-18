@@ -69,7 +69,6 @@
 )]
 
 #![cfg_attr(not(feature = "use_std"), no_std)]
-#![cfg_attr(feature="i128", feature(i128_type))]
 
 extern crate untrusted;
 use untrusted::{Reader, Input, EndOfInput};
@@ -166,7 +165,6 @@ pub trait ReaderExt<'a> {
     ///
     /// Returns Ok(v) where v is the value read, or Err(Error::EndOfInput) if
     /// the Reader encountered an end of the input while reading.
-    #[cfg(feature = "i128")]
     #[inline]
     fn read_u128be(&mut self) -> Result<u128, Error> {
         let b1 = u128::from(self.read_u64be()?);
@@ -239,7 +237,6 @@ pub trait ReaderExt<'a> {
     ///
     /// Returns Ok(v) where v is the value read, or Err(Error::EndOfInput) if
     /// the Reader encountered an end of the input while reading.
-    #[cfg(feature = "i128")]
     #[inline]
     fn read_u128le(&mut self) -> Result<u128, Error> {
         let b2 = u128::from(self.read_u64le()?);
@@ -321,7 +318,6 @@ pub trait ReaderExt<'a> {
     ///
     /// Returns Ok(v) where v is the value read, or Err(Error::EndOfInput) if
     /// the Reader encountered an end of the input while reading.
-    #[cfg(feature = "i128")]
     #[inline]
     fn read_i128be(&mut self) -> Result<i128, Error> {
         let b1 = i128::from(self.read_u64be()?);
@@ -394,7 +390,6 @@ pub trait ReaderExt<'a> {
     ///
     /// Returns Ok(v) where v is the value read, or Err(Error::EndOfInput) if
     /// the Reader encountered an end of the input while reading.
-    #[cfg(feature = "i128")]
     #[inline]
     fn read_i128le(&mut self) -> Result<i128, Error> {
         let b2 = i128::from(self.read_u64le()?);

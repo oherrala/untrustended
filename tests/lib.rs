@@ -1,7 +1,5 @@
 #![deny(warnings)]
 
-#![cfg_attr(feature="i128", feature(i128_type))]
-
 extern crate byteorder;
 #[macro_use]
 extern crate quickcheck;
@@ -66,7 +64,6 @@ quickcheck! {
         xs == reader.read_u64be().expect("read_u64be")
     }
 
-    #[cfg(feature = "i128")]
     fn prop_read_u128be(xs: (u64, u64)) -> bool {
         let mut buf = Vec::new();
         let ys = (u128::from(xs.0) << 64) + u128::from(xs.1);
@@ -115,7 +112,6 @@ quickcheck! {
         xs == reader.read_u64le().expect("read_u64le")
     }
 
-    #[cfg(feature = "i128")]
     fn prop_read_u128le(xs: (u64, u64)) -> bool {
         let mut buf = Vec::new();
         let ys = (u128::from(xs.0) << 64) + u128::from(xs.1);
@@ -171,7 +167,6 @@ quickcheck! {
         xs == reader.read_i64be().expect("read_i64be")
     }
 
-    #[cfg(feature = "i128")]
     fn prop_read_i128be(xs: (u64, u64)) -> bool {
         let mut buf = Vec::new();
         let ys = (i128::from(xs.0) << 64) + i128::from(xs.1);
@@ -220,7 +215,6 @@ quickcheck! {
         xs == reader.read_i64le().expect("read_i64le")
     }
 
-    #[cfg(feature = "i128")]
     fn prop_read_i128le(xs: (u64, u64)) -> bool {
         let mut buf = Vec::new();
         let ys = (i128::from(xs.0) << 64) + i128::from(xs.1);
