@@ -1,7 +1,7 @@
 [package]
 name = "untrustended"
 version = "0.2.1"
-authors = ["Ossi Herrala <oherrala@iki.fi>"]
+authors = [ "Ossi Herrala <oherrala@iki.fi>" ]
 license = "ISC"
 
 description = "Untrustended - Untrusted Extended. A compilation of primitives for parsing values from untrusted input."
@@ -9,20 +9,20 @@ homepage = "https://github.com/oherrala/untrustended#readme"
 repository = "https://github.com/oherrala/untrustended"
 documentation = "https://docs.rs/untrustended/"
 readme = "README.md"
-keywords = ["untrusted", "input", "parsing", "primitives"]
-categories = ["parsing", "parser-implementations"]
+keywords = [ "untrusted", "input", "parsing", "primitives" ]
+categories = [ "parsing", "parser-implementations" ]
 
 [badges]
 circle-ci = { repository = "oherrala/untrustended" }
 
 [features]
-default = ["use_std"]
+default = [ "use_std" ]
 use_std = []
 i128 = [ "byteorder/i128" ]
 
 [dependencies]
-untrusted = "0.6.0"
+untrusted = "0.6"
 
 [dev-dependencies]
-byteorder = "1.1.0"
-quickcheck = { version = "0.4.1", default-features = false }
+byteorder = "1"
+quickcheck = { version = "0.6", default-features = false }
