@@ -70,10 +70,9 @@
 
 #![cfg_attr(not(feature = "use_std"), no_std)]
 
-extern crate untrusted;
 use untrusted::{Reader, Input, EndOfInput};
 
-pub use error::Error;
+pub use crate::error::Error;
 
 #[cfg(feature = "use_std")]
 use std::net::{Ipv4Addr, Ipv6Addr};
@@ -89,7 +88,7 @@ pub trait ReaderExt<'a> {
     ///
     /// Returns Ok(i) where i is an Input if there are at least num_bytes of
     /// input remaining, and Err(EndOfInput) otherwise.
-    fn skip_and_get_input(&mut self, num_bytes: usize) -> Result<Input<'a>, EndOfInput>;
+    fn read_bytes(&mut self, num_bytes: usize) -> Result<Input<'a>, EndOfInput>;
 
     /// Reads 8 bit unsigned integer.
     ///
@@ -408,7 +407,7 @@ pub trait ReaderExt<'a> {
     /// while reading.
     #[inline]
     fn read_bytes_less_safe(&mut self, num_bytes: usize) -> Result<&'a [u8], Error> {
-        Ok(self.skip_and_get_input(num_bytes).map(
+        Ok(self.read_bytes(num_bytes).map(
             |v| v.as_slice_less_safe(),
         )?)
     }
@@ -496,8 +495,8 @@ impl<'a> ReaderExt<'a> for Reader<'a> {
     }
 
     #[inline]
-    fn skip_and_get_input(&mut self, num_bytes: usize) -> Result<Input<'a>, EndOfInput> {
-        self.skip_and_get_input(num_bytes)
+    fn read_bytes(&mut self, num_bytes: usize) -> Result<Input<'a>, EndOfInput> {
+        self.read_bytes(num_bytes)
     }
 }
 
@@ -525,7 +524,7 @@ mod error {
 
     #[cfg(feature = "use_std")]
     impl fmt::Display for Error {
-        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
             write!(f, "reading failed with {:?}", self)
         }
     }

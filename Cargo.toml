@@ -1,8 +1,9 @@
 [package]
 name = "untrustended"
-version = "0.2.1"
+version = "0.3.0-alpha.0"
 authors = [ "Ossi Herrala <oherrala@iki.fi>" ]
 license = "ISC"
+edition = "2018"
 
 description = "Untrustended - Untrusted Extended. A compilation of primitives for parsing values from untrusted input."
 homepage = "https://github.com/oherrala/untrustended#readme"
@@ -17,13 +18,12 @@ circle-ci = { repository = "oherrala/untrustended" }
 
 [features]
 default = [ "use_std" ]
-use_std = []
-# i128 feature doesn't do anything anymore. This will be removed.
-i128 = []
+use_std = [ ]
 
 [dependencies]
-untrusted = "0.6"
+# untrusted = "0.6"
+untrusted = { git = "https://github.com/briansmith/untrusted", branch = "master" }
 
 [dev-dependencies]
-byteorder = "1"
-quickcheck = { version = "0.6", default-features = false }
+byteorder = { version = "1", features = [ "std" ] }
+quickcheck = { version = "0.8", default-features = false }

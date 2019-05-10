@@ -1,11 +1,6 @@
 #![deny(warnings)]
 
-extern crate byteorder;
-#[macro_use]
-extern crate quickcheck;
-
-extern crate untrusted;
-extern crate untrustended;
+use quickcheck::quickcheck;
 
 use untrusted::{Input, Reader};
 use untrustended::ReaderExt;
@@ -13,7 +8,7 @@ use untrustended::ReaderExt;
 use byteorder::{WriteBytesExt, BigEndian, LittleEndian};
 
 #[inline]
-fn reader(buf: &[u8]) -> Reader {
+fn reader<'r>(buf: &'r [u8]) -> Reader<'r> {
     Reader::new(Input::from(buf))
 }
 
