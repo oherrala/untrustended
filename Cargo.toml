@@ -1,6 +1,6 @@
 [package]
 name = "untrustended"
-version = "0.3.0-alpha.0"
+version = "0.3.0"
 authors = [ "Ossi Herrala <oherrala@iki.fi>" ]
 license = "ISC"
 edition = "2018"
@@ -21,8 +21,7 @@ default = [ "use_std" ]
 use_std = [ ]
 
 [dependencies]
-# untrusted = "0.6"
-untrusted = { git = "https://github.com/briansmith/untrusted", branch = "master" }
+untrusted = "0.7"
 
 [dev-dependencies]
 byteorder = { version = "1", features = [ "std" ] }
