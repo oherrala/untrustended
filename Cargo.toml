@@ -13,9 +13,6 @@ readme = "README.md"
 keywords = [ "untrusted", "input", "parsing", "primitives" ]
 categories = [ "parsing", "parser-implementations", "no-std" ]
 
-[badges]
-circle-ci = { repository = "oherrala/untrustended" }
-
 [features]
 default = [ "use_std" ]
 use_std = [ ]
