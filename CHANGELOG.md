@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2021-07-19
+
+### Added
+* Introduce methods `read_be()` and `read_le()` to read as many bytes as
+  required to instantiate a specific type (for example `let count: u32 =
+  reader.read_be()`).
+
+### Changed
+* Bump [untrusted](https://crates.io/crates/untrusted) to version 0.9.0.
+
 ## [0.3.0] - 2019-07-30
 
 ### Changed

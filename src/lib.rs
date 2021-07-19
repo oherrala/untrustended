@@ -3,7 +3,8 @@
 //! Untrustended is a compilation of primitives for parsing values from
 //! untrusted input. It's building on top of
 //! [untrusted](https://crates.io/crates/untrusted)'s
-//! [`Reader::read_byte()`](https://briansmith.org/rustdoc/untrusted/struct.Reader.html#method.read_byte).
+//! [`Reader::read_byte()`](https://briansmith.org/rustdoc/untrusted/struct.Reader.html#method.read_byte)
+//! and [`Reader::read_bytes()`](https://briansmith.org/rustdoc/untrusted/struct.Reader.html#method.read_bytes).
 //!
 //! Please, consult [untrusted](https://crates.io/crates/untrusted)'s
 //! documentation about how to use that crate before attempting to use this one.
@@ -19,13 +20,10 @@
 //! Example:
 //!
 //! ```rust
-//! extern crate untrusted;
-//! extern crate untrustended;
-//!
 //! use untrusted::{Input, Reader};
 //! use untrustended::{ReaderExt, Error};
 //!
-//! fn read_stuff(input: &mut Reader) -> Result<(u8, u16, u32), Error> {
+//! fn read_stuff(input: &mut Reader<'_>) -> Result<(u8, u16, u32), Error> {
 //!     let one_byte = input.read_u8()?;
 //!     let big_endian_u16 = input.read_u16be()?;
 //!     let little_endian_u32 = input.read_u32le()?;
@@ -40,37 +38,9 @@
 //! }
 //! ```
 
-// Copy lints from untrusted
-// https://github.com/briansmith/untrusted/commit/01cde2d54e2f8fc234a8b5ea660fe510db2cf399
-
-#![allow(
-    missing_copy_implementations,
-    missing_debug_implementations,
-)]
-
-// `#[derive(...)]` uses `#[allow(unused_qualifications)]` internally.
-#![deny(
-    unused_qualifications,
-)]
-
-#![forbid(
-    anonymous_parameters,
-    box_pointers,
-    legacy_directory_ownership,
-    missing_docs,
-    trivial_casts,
-    trivial_numeric_casts,
-    unsafe_code,
-    unused_extern_crates,
-    unused_import_braces,
-    unused_results,
-    variant_size_differences,
-    warnings,
-)]
-
 #![cfg_attr(not(feature = "use_std"), no_std)]
 
-use untrusted::{Reader, Input, EndOfInput};
+use untrusted::{EndOfInput, Input, Reader};
 
 pub use crate::error::Error;
 
@@ -80,8 +50,7 @@ use std::net::{Ipv4Addr, Ipv6Addr};
 /// A trait extending [untrusted](https://crates.io/crates/untrusted)'s
 /// [`Reader`](https://briansmith.org/rustdoc/untrusted/struct.Reader.html).
 pub trait ReaderExt<'a> {
-    /// Read one byte. This is the basic building block of every other read
-    /// method provided.
+    /// Read one byte.
     fn read_byte(&mut self) -> Result<u8, EndOfInput>;
 
     /// Skips num_bytes of the input, returning the skipped input as an Input.
@@ -89,6 +58,14 @@ pub trait ReaderExt<'a> {
     /// Returns Ok(i) where i is an Input if there are at least num_bytes of
     /// input remaining, and Err(EndOfInput) otherwise.
     fn read_bytes(&mut self, num_bytes: usize) -> Result<Input<'a>, EndOfInput>;
+
+    /// Read as many bytes as needed to instantiate a type in Big Endian byte
+    /// order.
+    fn read_be<T: FromReader>(&mut self) -> Result<T, Error>;
+
+    /// Read as many bytes as needed to instantiate a type in Little Endian byte
+    /// order.
+    fn read_le<T: FromReader>(&mut self) -> Result<T, Error>;
 
     /// Reads 8 bit unsigned integer.
     ///
@@ -105,9 +82,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_u16be(&mut self) -> Result<u16, Error> {
-        let b1 = u16::from(self.read_u8()?);
-        let b2 = u16::from(self.read_u8()?);
-        Ok((b1 << 8) + b2)
+        self.read_be().map_err(From::from)
     }
 
     /// Reads 24 bit unsigned integer in big endian.
@@ -130,9 +105,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_u32be(&mut self) -> Result<u32, Error> {
-        let b1 = u32::from(self.read_u16be()?);
-        let b2 = u32::from(self.read_u16be()?);
-        Ok((b1 << 16) + b2)
+        self.read_be().map_err(From::from)
     }
 
     /// Reads 48 bit unsigned integer in big endian.
@@ -155,9 +128,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_u64be(&mut self) -> Result<u64, Error> {
-        let b1 = u64::from(self.read_u32be()?);
-        let b2 = u64::from(self.read_u32be()?);
-        Ok((b1 << 32) + b2)
+        self.read_be().map_err(From::from)
     }
 
     /// Reads 128 bit unsigned integer in big endian.
@@ -166,9 +137,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_u128be(&mut self) -> Result<u128, Error> {
-        let b1 = u128::from(self.read_u64be()?);
-        let b2 = u128::from(self.read_u64be()?);
-        Ok((b1 << 64) + b2)
+        self.read_be().map_err(From::from)
     }
 
     /// Reads 16 bit unsigned integer in little endian.
@@ -177,9 +146,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_u16le(&mut self) -> Result<u16, Error> {
-        let b2 = u16::from(self.read_u8()?);
-        let b1 = u16::from(self.read_u8()?);
-        Ok((b1 << 8) + b2)
+        self.read_le().map_err(From::from)
     }
 
     /// Reads 24 bit unsigned integer in little endian.
@@ -202,9 +169,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_u32le(&mut self) -> Result<u32, Error> {
-        let b2 = u32::from(self.read_u16le()?);
-        let b1 = u32::from(self.read_u16le()?);
-        Ok((b1 << 16) + b2)
+        self.read_le().map_err(From::from)
     }
 
     /// Reads 48 bit unsigned integer in little endian.
@@ -227,9 +192,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_u64le(&mut self) -> Result<u64, Error> {
-        let b2 = u64::from(self.read_u32le()?);
-        let b1 = u64::from(self.read_u32le()?);
-        Ok((b1 << 32) + b2)
+        self.read_le().map_err(From::from)
     }
 
     /// Reads 128 bit unsigned integer in little endian.
@@ -238,9 +201,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_u128le(&mut self) -> Result<u128, Error> {
-        let b2 = u128::from(self.read_u64le()?);
-        let b1 = u128::from(self.read_u64le()?);
-        Ok((b1 << 64) + b2)
+        self.read_le().map_err(From::from)
     }
 
     /// Reads 8 bit signed integer.
@@ -258,9 +219,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_i16be(&mut self) -> Result<i16, Error> {
-        let b1 = i16::from(self.read_u8()?);
-        let b2 = i16::from(self.read_u8()?);
-        Ok((b1 << 8) + b2)
+        self.read_be().map_err(From::from)
     }
 
     /// Reads 24 bit signed integer in big endian.
@@ -283,9 +242,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_i32be(&mut self) -> Result<i32, Error> {
-        let b1 = i32::from(self.read_u16be()?);
-        let b2 = i32::from(self.read_u16be()?);
-        Ok((b1 << 16) + b2)
+        self.read_be().map_err(From::from)
     }
 
     /// Reads 48 bit signed integer in big endian.
@@ -308,9 +265,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_i64be(&mut self) -> Result<i64, Error> {
-        let b1 = i64::from(self.read_u32be()?);
-        let b2 = i64::from(self.read_u32be()?);
-        Ok((b1 << 32) + b2)
+        self.read_be().map_err(From::from)
     }
 
     /// Reads 128 bit signed integer in big endian.
@@ -319,9 +274,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_i128be(&mut self) -> Result<i128, Error> {
-        let b1 = i128::from(self.read_u64be()?);
-        let b2 = i128::from(self.read_u64be()?);
-        Ok((b1 << 64) + b2)
+        self.read_be().map_err(From::from)
     }
 
     /// Reads 16 bit signed integer in little endian.
@@ -330,9 +283,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_i16le(&mut self) -> Result<i16, Error> {
-        let b2 = i16::from(self.read_u8()?);
-        let b1 = i16::from(self.read_u8()?);
-        Ok((b1 << 8) + b2)
+        self.read_le().map_err(From::from)
     }
 
     /// Reads 24 bit signed integer in little endian.
@@ -355,9 +306,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_i32le(&mut self) -> Result<i32, Error> {
-        let b2 = i32::from(self.read_u16le()?);
-        let b1 = i32::from(self.read_u16le()?);
-        Ok((b1 << 16) + b2)
+        self.read_le().map_err(From::from)
     }
 
     /// Reads 48 bit signed integer in little endian.
@@ -380,9 +329,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_i64le(&mut self) -> Result<i64, Error> {
-        let b2 = i64::from(self.read_u32le()?);
-        let b1 = i64::from(self.read_u32le()?);
-        Ok((b1 << 32) + b2)
+        self.read_le().map_err(From::from)
     }
 
     /// Reads 128 bit signed integer in little endian.
@@ -391,9 +338,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_i128le(&mut self) -> Result<i128, Error> {
-        let b2 = i128::from(self.read_u64le()?);
-        let b1 = i128::from(self.read_u64le()?);
-        Ok((b1 << 64) + b2)
+        self.read_le().map_err(From::from)
     }
 
     /// Reads given amount of bytes.
@@ -407,9 +352,7 @@ pub trait ReaderExt<'a> {
     /// while reading.
     #[inline]
     fn read_bytes_less_safe(&mut self, num_bytes: usize) -> Result<&'a [u8], Error> {
-        Ok(self.read_bytes(num_bytes).map(
-            |v| v.as_slice_less_safe(),
-        )?)
+        Ok(self.read_bytes(num_bytes).map(|v| v.as_slice_less_safe())?)
     }
 
     /// Reads bytes as UTF-8 String.
@@ -467,8 +410,7 @@ pub trait ReaderExt<'a> {
     #[inline]
     #[cfg(feature = "use_std")]
     fn read_ipv4addr(&mut self) -> Result<Ipv4Addr, Error> {
-        let bytes = self.read_u32be()?;
-        Ok(Ipv4Addr::from(bytes))
+        self.read_be()
     }
 
     /// Reads IPv6 address in big endian format.
@@ -479,12 +421,7 @@ pub trait ReaderExt<'a> {
     #[inline]
     #[cfg(feature = "use_std")]
     fn read_ipv6addr(&mut self) -> Result<Ipv6Addr, Error> {
-        let mut b = [0u16; 8];
-        for i in &mut b {
-            *i = self.read_u16be()?;
-        }
-        let ip = Ipv6Addr::new(b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]);
-        Ok(ip)
+        self.read_be()
     }
 }
 
@@ -497,6 +434,127 @@ impl<'a> ReaderExt<'a> for Reader<'a> {
     #[inline]
     fn read_bytes(&mut self, num_bytes: usize) -> Result<Input<'a>, EndOfInput> {
         self.read_bytes(num_bytes)
+    }
+
+    #[inline]
+    fn read_be<T: FromReader>(&mut self) -> Result<T, Error> {
+        FromReader::read_be(self)
+    }
+
+    #[inline]
+    fn read_le<T: FromReader>(&mut self) -> Result<T, Error> {
+        FromReader::read_le(self)
+    }
+}
+
+/// A trait to abstract the idea of creating a new instance of a type from
+/// reading bytes out from `Reader`.
+pub trait FromReader: Sized {
+    /// Read as many bytes as needed to instantiate a type in Big Endian byte
+    /// order.
+    fn read_be(_: &mut Reader<'_>) -> Result<Self, Error>;
+
+    /// Read as many bytes as needed to instantiate a type in Little Endian byte
+    /// order.
+    fn read_le(_: &mut Reader<'_>) -> Result<Self, Error>;
+}
+
+macro_rules! read_unsigned {
+    ($type:ty) => {
+        fn read_be(reader: &mut Reader<'_>) -> Result<Self, Error> {
+            const LEN: usize = core::mem::size_of::<$type>();
+            let mut arr = [0u8; LEN];
+            let slice = reader.read_bytes(LEN)?.as_slice_less_safe();
+            arr.copy_from_slice(slice);
+            Ok(<$type>::from_be_bytes(arr))
+        }
+
+        fn read_le(reader: &mut Reader<'_>) -> Result<Self, Error> {
+            const LEN: usize = core::mem::size_of::<$type>();
+            let mut arr = [0u8; LEN];
+            let slice = reader.read_bytes(LEN)?.as_slice_less_safe();
+            arr.copy_from_slice(slice);
+            Ok(<$type>::from_le_bytes(arr))
+        }
+    };
+}
+
+macro_rules! read_signed {
+    ($type:ty) => {
+        #[inline]
+        fn read_be(reader: &mut Reader<'_>) -> Result<Self, Error> {
+            let r = reader.read_be::<$type>()?;
+            Ok(r as Self)
+        }
+
+        #[inline]
+        fn read_le(reader: &mut Reader<'_>) -> Result<Self, Error> {
+            let r = reader.read_le::<$type>()?;
+            Ok(r as Self)
+        }
+    };
+}
+
+impl FromReader for u8 {
+    #[inline]
+    fn read_be(reader: &mut Reader<'_>) -> Result<Self, Error> {
+        reader.read_byte().map_err(From::from)
+    }
+
+    #[inline]
+    fn read_le(reader: &mut Reader<'_>) -> Result<Self, Error> {
+        reader.read_byte().map_err(From::from)
+    }
+}
+
+impl FromReader for u16 {
+    read_unsigned!(u16);
+}
+impl FromReader for u32 {
+    read_unsigned!(u32);
+}
+impl FromReader for u64 {
+    read_unsigned!(u64);
+}
+impl FromReader for u128 {
+    read_unsigned!(u128);
+}
+
+impl FromReader for i8 {
+    read_signed!(u8);
+}
+impl FromReader for i16 {
+    read_signed!(u16);
+}
+impl FromReader for i32 {
+    read_signed!(u32);
+}
+impl FromReader for i64 {
+    read_signed!(u64);
+}
+impl FromReader for i128 {
+    read_signed!(u128);
+}
+
+#[cfg(feature = "use_std")]
+impl FromReader for Ipv4Addr {
+    fn read_be(reader: &mut Reader<'_>) -> Result<Self, Error> {
+        reader.read_u32be().map(Ipv4Addr::from)
+    }
+
+    fn read_le(reader: &mut Reader<'_>) -> Result<Self, Error> {
+        reader.read_u32le().map(Ipv4Addr::from)
+    }
+}
+
+#[cfg(feature = "use_std")]
+impl FromReader for Ipv6Addr {
+    fn read_be(reader: &mut Reader<'_>) -> Result<Self, Error> {
+        reader.read_u128be().map(Ipv6Addr::from)
+    }
+
+    fn read_le(reader: &mut Reader<'_>) -> Result<Self, Error> {
+        reader.read_u128le().map(Ipv6Addr::from)
     }
 }
 
@@ -555,7 +613,7 @@ mod error {
             match *self {
                 Error::EndOfInput => "end of input was reached unexpectedly",
                 Error::ParseError => "failed to parse data into a more specific type",
-                Error::UnknownError => "reading failed with an unknown error"
+                Error::UnknownError => "reading failed with an unknown error",
             }
         }
     }

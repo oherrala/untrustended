@@ -5,7 +5,7 @@ use quickcheck::quickcheck;
 use untrusted::{Input, Reader};
 use untrustended::ReaderExt;
 
-use byteorder::{WriteBytesExt, BigEndian, LittleEndian};
+use byteorder::{BigEndian, LittleEndian, WriteBytesExt};
 
 #[inline]
 fn reader<'r>(buf: &'r [u8]) -> Reader<'r> {
@@ -45,9 +45,7 @@ quickcheck! {
     fn prop_read_u48be(xs: (u16, u16, u16)) -> bool {
         let mut buf = Vec::new();
         let ys = (u64::from(xs.0) << 32) + (u64::from(xs.1) << 16) + u64::from(xs.2);
-        buf.write_u16::<BigEndian>(xs.0).expect("write_u16");
-        buf.write_u16::<BigEndian>(xs.1).expect("write_u16");
-        buf.write_u16::<BigEndian>(xs.2).expect("write_u16");
+        buf.write_u48::<BigEndian>(ys).expect("write_u48");
         let mut reader = reader(&buf);
         ys == reader.read_u48be().expect("read_u48be")
     }
@@ -93,9 +91,7 @@ quickcheck! {
     fn prop_read_u48le(xs: (u16, u16, u16)) -> bool {
         let mut buf = Vec::new();
         let ys = (u64::from(xs.0) << 32) + (u64::from(xs.1) << 16) + u64::from(xs.2);
-        buf.write_u16::<LittleEndian>(xs.2).expect("write_u16");
-        buf.write_u16::<LittleEndian>(xs.1).expect("write_u16");
-        buf.write_u16::<LittleEndian>(xs.0).expect("write_u16");
+        buf.write_u48::<LittleEndian>(ys).expect("write_u48");
         let mut reader = reader(&buf);
         ys == reader.read_u48le().expect("read_u48le")
     }
@@ -110,8 +106,7 @@ quickcheck! {
     fn prop_read_u128le(xs: (u64, u64)) -> bool {
         let mut buf = Vec::new();
         let ys = (u128::from(xs.0) << 64) + u128::from(xs.1);
-        buf.write_u64::<LittleEndian>(xs.1).expect("write_u64");
-        buf.write_u64::<LittleEndian>(xs.0).expect("write_u64");
+        buf.write_u128::<LittleEndian>(ys).expect("write_u128");
         let mut reader = reader(&buf);
         ys == reader.read_u128le().expect("read_u128le")
     }
@@ -130,10 +125,11 @@ quickcheck! {
         xs == reader.read_i16be().expect("read_i16be")
     }
 
-    fn prop_read_i24be(xs: (u8, u8, u8)) -> bool {
+    fn prop_read_i24be(xs: (i8, u8, u8)) -> bool {
         let mut buf = Vec::new();
         let ys = (i32::from(xs.0) << 16) + (i32::from(xs.1) << 8) + i32::from(xs.2);
         buf.write_i24::<BigEndian>(ys).expect("write_i24");
+        dbg!(&buf);
         let mut reader = reader(&buf);
         ys == reader.read_i24be().expect("read_i24be")
     }
@@ -145,12 +141,10 @@ quickcheck! {
         xs == reader.read_i32be().expect("read_i32be")
     }
 
-    fn prop_read_i48be(xs: (u16, u16, u16)) -> bool {
+    fn prop_read_i48be(xs: (i16, u16, u16)) -> bool {
         let mut buf = Vec::new();
         let ys = (i64::from(xs.0) << 32) + (i64::from(xs.1) << 16) + i64::from(xs.2);
-        buf.write_u16::<BigEndian>(xs.0).expect("write_u16");
-        buf.write_u16::<BigEndian>(xs.1).expect("write_u16");
-        buf.write_u16::<BigEndian>(xs.2).expect("write_u16");
+        buf.write_i48::<BigEndian>(ys).expect("write_i48");
         let mut reader = reader(&buf);
         ys == reader.read_i48be().expect("read_i48be")
     }
@@ -165,8 +159,7 @@ quickcheck! {
     fn prop_read_i128be(xs: (u64, u64)) -> bool {
         let mut buf = Vec::new();
         let ys = (i128::from(xs.0) << 64) + i128::from(xs.1);
-        buf.write_u64::<BigEndian>(xs.0).expect("write_u64");
-        buf.write_u64::<BigEndian>(xs.1).expect("write_u64");
+        buf.write_i128::<BigEndian>(ys).expect("write_i128");
         let mut reader = reader(&buf);
         ys == reader.read_i128be().expect("read_i128be")
     }
@@ -178,7 +171,7 @@ quickcheck! {
         xs == reader.read_i16le().expect("read_i16le")
     }
 
-    fn prop_read_i24le(xs: (u8, u8, u8)) -> bool {
+    fn prop_read_i24le(xs: (i8, u8, u8)) -> bool {
         let mut buf = Vec::new();
         let ys = (i32::from(xs.0) << 16) + (i32::from(xs.1) << 8) + i32::from(xs.2);
         buf.write_i24::<LittleEndian>(ys).expect("write_i24");
@@ -193,12 +186,10 @@ quickcheck! {
         xs == reader.read_i32le().expect("read_i32le")
     }
 
-    fn prop_read_i48le(xs: (u16, u16, u16)) -> bool {
+    fn prop_read_i48le(xs: (i16, u16, u16)) -> bool {
         let mut buf = Vec::new();
         let ys = (i64::from(xs.0) << 32) + (i64::from(xs.1) << 16) + i64::from(xs.2);
-        buf.write_u16::<LittleEndian>(xs.2).expect("write_u16");
-        buf.write_u16::<LittleEndian>(xs.1).expect("write_u16");
-        buf.write_u16::<LittleEndian>(xs.0).expect("write_u16");
+        buf.write_i48::<LittleEndian>(ys).expect("write_i48");
         let mut reader = reader(&buf);
         ys == reader.read_i48le().expect("read_i48le")
     }
@@ -213,8 +204,7 @@ quickcheck! {
     fn prop_read_i128le(xs: (u64, u64)) -> bool {
         let mut buf = Vec::new();
         let ys = (i128::from(xs.0) << 64) + i128::from(xs.1);
-        buf.write_u64::<LittleEndian>(xs.1).expect("write_u64");
-        buf.write_u64::<LittleEndian>(xs.0).expect("write_u64");
+        buf.write_i128::<LittleEndian>(ys).expect("write_i128");
         let mut reader = reader(&buf);
         ys == reader.read_i128le().expect("read_i128le")
     }
@@ -357,7 +347,6 @@ fn read_i64be_specials() {
     }
 }
 
-
 #[test]
 fn read_i16le_specials() {
     let specials = vec![
@@ -464,8 +453,8 @@ fn read_utf16_with_odd_length() {
 #[test]
 #[cfg(feature = "use_std")]
 fn read_ipv4addr() {
-    use std::net::Ipv4Addr;
     use std::io::Write;
+    use std::net::Ipv4Addr;
     let addrs: Vec<Ipv4Addr> = vec![
         "0.0.0.0".parse().expect("parse ipv4 addr"),
         "192.0.2.1".parse().expect("parse ipv4 addr"),
@@ -484,16 +473,16 @@ fn read_ipv4addr() {
 #[test]
 #[cfg(feature = "use_std")]
 fn read_ipv6addr() {
-    use std::net::Ipv6Addr;
     use std::io::Write;
+    use std::net::Ipv6Addr;
     let addrs: Vec<Ipv6Addr> = vec![
         "2001:DB8::".parse().expect("parse ipv6 addr"),
-        "2001:DB8:ff00:00ff:f00f:0ff0:0000:ffff".parse().expect(
-            "parse ipv6 addr"
-        ),
-        "2001:DB8:ffff:ffff:ffff:ffff:ffff:ffff".parse().expect(
-            "parse ipv6 addr"
-        ),
+        "2001:DB8:ff00:00ff:f00f:0ff0:0000:ffff"
+            .parse()
+            .expect("parse ipv6 addr"),
+        "2001:DB8:ffff:ffff:ffff:ffff:ffff:ffff"
+            .parse()
+            .expect("parse ipv6 addr"),
     ];
     for addr in addrs {
         let mut buf = Vec::new();

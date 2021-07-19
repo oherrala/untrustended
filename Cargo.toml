@@ -1,6 +1,6 @@
 [package]
 name = "untrustended"
-version = "0.3.0"
+version = "0.4.0"
 authors = [ "Ossi Herrala <oherrala@iki.fi>" ]
 license = "ISC"
 edition = "2018"
@@ -11,7 +11,7 @@ repository = "https://github.com/oherrala/untrustended"
 documentation = "https://docs.rs/untrustended/"
 readme = "README.md"
 keywords = [ "untrusted", "input", "parsing", "primitives" ]
-categories = [ "parsing", "parser-implementations" ]
+categories = [ "parsing", "parser-implementations", "no-std" ]
 
 [badges]
 circle-ci = { repository = "oherrala/untrustended" }
@@ -21,8 +21,8 @@ default = [ "use_std" ]
 use_std = [ ]
 
 [dependencies]
-untrusted = "0.7"
+untrusted = "0.9"
 
 [dev-dependencies]
 byteorder = { version = "1", features = [ "std" ] }
-quickcheck = { version = "0.8", default-features = false }
+quickcheck = { version = "1", default-features = false }
