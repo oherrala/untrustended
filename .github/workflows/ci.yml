@@ -8,61 +8,40 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-20.04, macos-10.15 ]
+        os: [ ubuntu-20.04, ubuntu-22.04, macos-11, macos-12, macos-13 ]
         rust:
           - stable
           - beta
           - nightly
-          - 1.49.0  # MSRV (same as untrusted)
+          - 1.60.0  # MSRV
 
     steps:
-      - uses: actions/checkout@v1
-
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-
-      - uses: actions-rs/cargo@v1
-        with:
-          command: build
-
-      - uses: actions-rs/cargo@v1
-        with:
-          command: test
+      - name: Install Rust ${{ matrix.rust }}
+        run: |
+          rustup toolchain install ${{ matrix.rust }} --profile minimal
+          rustup override set ${{ matrix.rust }}
+      - uses: actions/checkout@v4
+      - run: cargo check -v
+      - run: cargo test -v
 
   clippy:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
-
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-          components: clippy
-
-      - uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: -- -D warnings
+      - name: Install Rust stable
+        run: |
+          rustup toolchain install stable --profile minimal
+          rustup override set stable
+      - uses: actions/checkout@v4
+      - run: cargo clippy -- -D warnings
 
   rustfmt:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
-
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-
-      - uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --all -- --check
+      - name: Install Rust stable
+        run: |
+          rustup toolchain install stable --profile minimal
+          rustup override set stable
+      - uses: actions/checkout@v4
+      - run: cargo fmt --all -- --check
