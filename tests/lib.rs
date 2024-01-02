@@ -239,13 +239,13 @@ quickcheck! {
 #[test]
 fn read_i8_specials() {
     let specials = vec![
-        i8::min_value(),
-        i8::min_value() + 1,
+        i8::MIN,
+        i8::MIN + 1,
         -1,
         0,
         1,
-        i8::max_value() - 1,
-        i8::max_value(),
+        i8::MAX - 1,
+        i8::MAX,
     ];
     for s in specials {
         let mut buf = Vec::new();
@@ -258,13 +258,13 @@ fn read_i8_specials() {
 #[test]
 fn read_i16be_specials() {
     let specials = vec![
-        i16::min_value(),
-        i16::min_value() + 1,
+        i16::MIN,
+        i16::MIN + 1,
         -1,
         0,
         1,
-        i16::max_value() - 1,
-        i16::max_value(),
+        i16::MAX - 1,
+        i16::MAX,
     ];
     for s in specials {
         let mut buf = Vec::new();
@@ -288,13 +288,13 @@ fn read_i24be_specials() {
 #[test]
 fn read_i32be_specials() {
     let specials = vec![
-        i32::min_value(),
-        i32::min_value() + 1,
+        i32::MIN,
+        i32::MIN + 1,
         -1,
         0,
         1,
-        i32::max_value() - 1,
-        i32::max_value(),
+        i32::MAX - 1,
+        i32::MAX,
     ];
     for s in specials {
         let mut buf = Vec::new();
@@ -331,13 +331,13 @@ fn read_i48be_specials() {
 #[test]
 fn read_i64be_specials() {
     let specials = vec![
-        i64::min_value(),
-        i64::min_value() + 1,
+        i64::MIN,
+        i64::MIN + 1,
         -1,
         0,
         1,
-        i64::max_value() - 1,
-        i64::max_value(),
+        i64::MAX - 1,
+        i64::MAX,
     ];
     for s in specials {
         let mut buf = Vec::new();
@@ -350,13 +350,13 @@ fn read_i64be_specials() {
 #[test]
 fn read_i16le_specials() {
     let specials = vec![
-        i16::min_value(),
-        i16::min_value() + 1,
+        i16::MIN,
+        i16::MIN + 1,
         -1,
         0,
         1,
-        i16::max_value() - 1,
-        i16::max_value(),
+        i16::MAX - 1,
+        i16::MAX,
     ];
     for s in specials {
         let mut buf = Vec::new();
@@ -380,13 +380,13 @@ fn read_i24le_specials() {
 #[test]
 fn read_i32le_specials() {
     let specials = vec![
-        i32::min_value(),
-        i32::min_value() + 1,
+        i32::MIN,
+        i32::MIN + 1,
         -1,
         0,
         1,
-        i32::max_value() - 1,
-        i32::max_value(),
+        i32::MAX - 1,
+        i32::MAX,
     ];
 
     for s in specials {
@@ -424,13 +424,13 @@ fn read_i48le_specials() {
 #[test]
 fn read_i64le_specials() {
     let specials = vec![
-        i64::min_value(),
-        i64::min_value() + 1,
+        i64::MIN,
+        i64::MIN + 1,
         -1,
         0,
         1,
-        i64::max_value() - 1,
-        i64::max_value(),
+        i64::MAX - 1,
+        i64::MAX,
     ];
     for s in specials {
         let mut buf = Vec::new();
