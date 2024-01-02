@@ -238,15 +238,7 @@ quickcheck! {
 
 #[test]
 fn read_i8_specials() {
-    let specials = vec![
-        i8::MIN,
-        i8::MIN + 1,
-        -1,
-        0,
-        1,
-        i8::MAX - 1,
-        i8::MAX,
-    ];
+    let specials = vec![i8::MIN, i8::MIN + 1, -1, 0, 1, i8::MAX - 1, i8::MAX];
     for s in specials {
         let mut buf = Vec::new();
         buf.write_i8(s).expect("write_i8");
@@ -257,15 +249,7 @@ fn read_i8_specials() {
 
 #[test]
 fn read_i16be_specials() {
-    let specials = vec![
-        i16::MIN,
-        i16::MIN + 1,
-        -1,
-        0,
-        1,
-        i16::MAX - 1,
-        i16::MAX,
-    ];
+    let specials = vec![i16::MIN, i16::MIN + 1, -1, 0, 1, i16::MAX - 1, i16::MAX];
     for s in specials {
         let mut buf = Vec::new();
         buf.write_i16::<BigEndian>(s).expect("write_i16");
@@ -287,15 +271,7 @@ fn read_i24be_specials() {
 
 #[test]
 fn read_i32be_specials() {
-    let specials = vec![
-        i32::MIN,
-        i32::MIN + 1,
-        -1,
-        0,
-        1,
-        i32::MAX - 1,
-        i32::MAX,
-    ];
+    let specials = vec![i32::MIN, i32::MIN + 1, -1, 0, 1, i32::MAX - 1, i32::MAX];
     for s in specials {
         let mut buf = Vec::new();
         buf.write_i32::<BigEndian>(s).expect("write_i32");
@@ -330,15 +306,7 @@ fn read_i48be_specials() {
 
 #[test]
 fn read_i64be_specials() {
-    let specials = vec![
-        i64::MIN,
-        i64::MIN + 1,
-        -1,
-        0,
-        1,
-        i64::MAX - 1,
-        i64::MAX,
-    ];
+    let specials = vec![i64::MIN, i64::MIN + 1, -1, 0, 1, i64::MAX - 1, i64::MAX];
     for s in specials {
         let mut buf = Vec::new();
         buf.write_i64::<BigEndian>(s).expect("write_i64");
@@ -349,15 +317,7 @@ fn read_i64be_specials() {
 
 #[test]
 fn read_i16le_specials() {
-    let specials = vec![
-        i16::MIN,
-        i16::MIN + 1,
-        -1,
-        0,
-        1,
-        i16::MAX - 1,
-        i16::MAX,
-    ];
+    let specials = vec![i16::MIN, i16::MIN + 1, -1, 0, 1, i16::MAX - 1, i16::MAX];
     for s in specials {
         let mut buf = Vec::new();
         buf.write_i16::<LittleEndian>(s).expect("write_i16");
@@ -379,15 +339,7 @@ fn read_i24le_specials() {
 
 #[test]
 fn read_i32le_specials() {
-    let specials = vec![
-        i32::MIN,
-        i32::MIN + 1,
-        -1,
-        0,
-        1,
-        i32::MAX - 1,
-        i32::MAX,
-    ];
+    let specials = vec![i32::MIN, i32::MIN + 1, -1, 0, 1, i32::MAX - 1, i32::MAX];
 
     for s in specials {
         let mut buf = Vec::new();
@@ -423,15 +375,7 @@ fn read_i48le_specials() {
 
 #[test]
 fn read_i64le_specials() {
-    let specials = vec![
-        i64::MIN,
-        i64::MIN + 1,
-        -1,
-        0,
-        1,
-        i64::MAX - 1,
-        i64::MAX,
-    ];
+    let specials = vec![i64::MIN, i64::MIN + 1, -1, 0, 1, i64::MAX - 1, i64::MAX];
     for s in specials {
         let mut buf = Vec::new();
         buf.write_i64::<LittleEndian>(s).expect("write_i64");
