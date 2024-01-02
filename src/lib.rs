@@ -581,9 +581,16 @@ mod error {
     }
 
     #[cfg(feature = "use_std")]
+    impl std::error::Error for Error {}
+
+    #[cfg(feature = "use_std")]
     impl fmt::Display for Error {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            write!(f, "reading failed with {:?}", self)
+            match *self {
+                Error::EndOfInput => f.write_str("end of input was reached unexpectedly"),
+                Error::ParseError => f.write_str("failed to parse data into a more specific type"),
+                Error::UnknownError => f.write_str("reading failed with an unknown error"),
+            }
         }
     }
 
@@ -604,17 +611,6 @@ mod error {
     impl From<FromUtf16Error> for Error {
         fn from(_: FromUtf16Error) -> Self {
             Error::ParseError
-        }
-    }
-
-    #[cfg(feature = "use_std")]
-    impl ::std::error::Error for Error {
-        fn description(&self) -> &str {
-            match *self {
-                Error::EndOfInput => "end of input was reached unexpectedly",
-                Error::ParseError => "failed to parse data into a more specific type",
-                Error::UnknownError => "reading failed with an unknown error",
-            }
         }
     }
 }
