@@ -13,7 +13,7 @@ jobs:
           - stable
           - beta
           - nightly
-          - 1.60.0  # MSRV
+          - 1.70.0  # MSRV
 
     steps:
       - name: Install Rust ${{ matrix.rust }}
