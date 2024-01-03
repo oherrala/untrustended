@@ -410,7 +410,7 @@ pub trait ReaderExt<'a> {
     #[inline]
     #[cfg(feature = "use_std")]
     fn read_ipv4addr(&mut self) -> Result<Ipv4Addr, Error> {
-        self.read_be()
+        self.read_u32be().map(Ipv4Addr::from)
     }
 
     /// Reads IPv6 address in big endian format.
@@ -421,7 +421,7 @@ pub trait ReaderExt<'a> {
     #[inline]
     #[cfg(feature = "use_std")]
     fn read_ipv6addr(&mut self) -> Result<Ipv6Addr, Error> {
-        self.read_be()
+        self.read_u128be().map(Ipv6Addr::from)
     }
 }
 
