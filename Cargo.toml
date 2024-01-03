@@ -13,6 +13,10 @@ readme = "README.md"
 keywords = [ "untrusted", "input", "parsing", "primitives" ]
 categories = [ "parsing", "parser-implementations", "no-std" ]
 
+[[bench]]
+name = "bench"
+harness = false
+
 [features]
 default = [ "use_std" ]
 use_std = [ ]
@@ -22,4 +26,5 @@ untrusted = "0.9"
 
 [dev-dependencies]
 byteorder = { version = "1", features = [ "std" ] }
+criterion = "0.5"
 quickcheck = { version = "1", default-features = false }
