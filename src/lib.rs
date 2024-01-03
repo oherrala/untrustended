@@ -461,6 +461,7 @@ pub trait FromReader: Sized {
 
 macro_rules! read_unsigned {
     ($type:ty) => {
+        #[inline]
         fn read_be(reader: &mut Reader<'_>) -> Result<Self, Error> {
             const LEN: usize = core::mem::size_of::<$type>();
             let mut arr = [0u8; LEN];
@@ -469,6 +470,7 @@ macro_rules! read_unsigned {
             Ok(<$type>::from_be_bytes(arr))
         }
 
+        #[inline]
         fn read_le(reader: &mut Reader<'_>) -> Result<Self, Error> {
             const LEN: usize = core::mem::size_of::<$type>();
             let mut arr = [0u8; LEN];
