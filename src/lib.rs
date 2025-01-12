@@ -578,6 +578,9 @@ mod error {
         /// The error type used to indicate when parsing failed while trying
         /// to convert bytes into a more specific type.
         ParseError,
+        /// The error type indicating that while data parsed was syntactically
+        /// correct, the value parsed vas invalid in this context.
+        InvalidValue,
         /// Unknown error occured.
         UnknownError,
     }
@@ -591,6 +594,7 @@ mod error {
             match *self {
                 Error::EndOfInput => f.write_str("end of input was reached unexpectedly"),
                 Error::ParseError => f.write_str("failed to parse data into a more specific type"),
+                Error::InvalidValue => f.write_str("parsed data contained invalid value"),
                 Error::UnknownError => f.write_str("reading failed with an unknown error"),
             }
         }
