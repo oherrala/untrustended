@@ -560,6 +560,43 @@ impl FromReader for Ipv6Addr {
     }
 }
 
+/// Data structure that can be constructed by reading from [untrusted::Reader]
+///
+/// # Example
+/// Read Type-Length-Value encoded data into `Data` struct.
+///
+/// ```
+/// use untrustended::{Readable, ReaderExt, Error};
+/// use untrusted::{Input, Reader};
+///
+/// struct Data {
+///     t: u16,
+///     val: Vec<u8>,
+/// }
+/// impl Readable for Data {
+///     type Output = Data;
+///     fn read(input: &mut Reader<'_>) -> Result<Self::Output, Error> {
+///         let t = input.read_u16le()?;
+///         let len = input.read_u16le()?;
+///         let val = input.read_bytes_less_safe(usize::from(len))?.to_owned();
+///         Ok(Data { t, val })
+///     }
+/// }
+/// let input = [0x01u8, 0x00, 0x02, 0x00, 0xaa, 0xbb];
+/// let data = Input::from(&input)
+///     .read_all(Error::ParseError, Data::read)
+///     .expect("could not parse Data");
+/// assert_eq!(data.t, 0x01u16);
+/// assert_eq!(data.val, input[4..]);
+/// ```
+pub trait Readable {
+    /// Type this readable can produce
+    type Output;
+    /// Parses data from `input` and produces [Self::Output] instance from
+    /// data read.
+    fn read(input: &mut Reader<'_>) -> Result<Self::Output, Error>;
+}
+
 mod error {
     #[cfg(feature = "use_std")]
     use std::fmt;
