@@ -8,13 +8,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-20.04, ubuntu-22.04, macos-11, macos-12, macos-13 ]
+        os: [ ubuntu-22.04, ubuntu-24.04, macos-14, macos-15 ]
         rust:
           - stable
           - beta
           - nightly
-          - 1.70.0  # MSRV
-
+          - 1.74.0  # MSRV
     steps:
       - name: Install Rust ${{ matrix.rust }}
         run: |
@@ -26,7 +25,6 @@ jobs:
 
   clippy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Install Rust stable
         run: |
@@ -37,7 +35,6 @@ jobs:
 
   rustfmt:
     runs-on: ubuntu-latest
-
     steps:
       - name: Install Rust stable
         run: |
