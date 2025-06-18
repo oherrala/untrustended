@@ -234,6 +234,28 @@ quickcheck! {
         let mut reader = reader(&buf);
         xs == reader.read_utf16(len).expect("read_utf16")
     }
+
+    #[cfg(feature = "use_std")]
+    fn prop_read_cstring(xs: std::ffi::CString) -> bool {
+        let mut reader = reader(xs.as_bytes_with_nul());
+        xs == reader.read_cstring(usize::MAX).expect("read_cstring")
+    }
+
+    #[cfg(feature = "use_std")]
+    fn prop_read_multiple_cstrings(xs: Vec<std::ffi::CString>) -> bool {
+        use std::io::Write;
+        let mut buf = Vec::new();
+        for x in &xs {
+            buf.write_all(x.as_bytes_with_nul()).expect("write_all");
+        }
+        let mut reader = reader(&buf);
+        for x in &xs {
+            if *x != reader.read_cstring(usize::MAX).expect("read_cstring") {
+                return false;
+            }
+        }
+        true
+    }
 }
 
 #[test]
@@ -433,5 +455,43 @@ fn read_ipv6addr() {
         buf.write_all(&addr.octets()).expect("write_all");
         let mut reader = reader(&buf);
         assert_eq!(addr, reader.read_ipv6addr().expect("read_ipv6addr"));
+    }
+}
+
+#[test]
+#[cfg(feature = "use_std")]
+fn read_cstring() {
+    use std::ffi::CStr;
+    const TESTS: &[&CStr] = &[c"", c"a", c"aaaaaaa", c"Hello World!"];
+
+    for test in TESTS {
+        let mut reader = reader(test.to_bytes_with_nul());
+        let read = reader.read_cstring(usize::MAX).expect("read_cstring");
+        assert_eq!(*test, read.as_c_str());
+    }
+}
+
+#[test]
+#[cfg(feature = "use_std")]
+fn read_cstring_invalid_string() {
+    const TESTS: &[&[u8]] = &[b"", b"a", b"aaaaaaa", b"Hello World!"];
+
+    for test in TESTS {
+        let mut reader = reader(test);
+        assert!(
+            reader.read_cstring(usize::MAX).is_err(),
+            "Invalid CString {test:?}"
+        );
+    }
+}
+
+#[test]
+#[cfg(feature = "use_std")]
+fn read_cstring_missing_null() {
+    const TESTS: &[&[u8]] = &[b"aaaaaaa", b"Hello World!"];
+
+    for test in TESTS {
+        let mut reader = reader(test);
+        assert!(reader.read_cstring(6).is_err(), "Invalid CString {test:?}");
     }
 }
