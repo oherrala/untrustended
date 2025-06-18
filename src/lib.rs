@@ -47,6 +47,9 @@ pub use crate::error::Error;
 #[cfg(feature = "use_std")]
 use std::net::{Ipv4Addr, Ipv6Addr};
 
+#[cfg(feature = "use_std")]
+use std::ffi::CString;
+
 /// A trait extending [untrusted](https://crates.io/crates/untrusted)'s
 /// [`Reader`](https://briansmith.org/rustdoc/untrusted/struct.Reader.html).
 pub trait ReaderExt<'a> {
@@ -66,6 +69,13 @@ pub trait ReaderExt<'a> {
     /// Read as many bytes as needed to instantiate a type in Little Endian byte
     /// order.
     fn read_le<T: FromReader>(&mut self) -> Result<T, Error>;
+
+    /// Calls read() with the given input as a Reader. On success, returns a
+    /// pair (bytes_read, r) where bytes_read is what read() consumed and r is
+    /// read()’s return value.
+    fn read_partial<F, R, E>(&mut self, read: F) -> Result<(Input<'a>, R), E>
+    where
+        F: FnOnce(&mut Reader<'a>) -> Result<R, E>;
 
     /// Reads 8 bit unsigned integer.
     ///
@@ -423,6 +433,36 @@ pub trait ReaderExt<'a> {
     fn read_ipv6addr(&mut self) -> Result<Ipv6Addr, Error> {
         self.read_u128be().map(Ipv6Addr::from)
     }
+
+    /// Reads null terminated string.
+    ///
+    /// Length is the maximum number of bytes to read. Reading is terminated
+    /// either when null byte is encountered or maximum number of bytes read is
+    /// reached.
+    ///
+    /// Returns Ok(v) where v is a [CString], or Err(Error::EndOfInput) if the
+    /// Reader encountered an end of the input while reading, or
+    /// Err(Error::ParseError) if null termination couldn't be found.
+    #[inline]
+    #[cfg(feature = "use_std")]
+    fn read_cstring(&mut self, max_num_bytes: usize) -> Result<CString, Error> {
+        let reader = |input: &mut Reader<'_>| -> Result<(), Error> {
+            for _ in 0..max_num_bytes {
+                if input.peek(0) {
+                    return Ok(());
+                }
+                let _ = input.read_byte()?;
+            }
+            Err(Error::ParseError)
+        };
+
+        let (input, ()) = self.read_partial(reader)?;
+
+        // read the null byte out from input buffer.
+        let _ = self.read_byte()?;
+
+        Ok(CString::new(input.as_slice_less_safe())?)
+    }
 }
 
 impl<'a> ReaderExt<'a> for Reader<'a> {
@@ -444,6 +484,14 @@ impl<'a> ReaderExt<'a> for Reader<'a> {
     #[inline]
     fn read_le<T: FromReader>(&mut self) -> Result<T, Error> {
         FromReader::read_le(self)
+    }
+
+    #[inline]
+    fn read_partial<F, R, E>(&mut self, read: F) -> Result<(Input<'a>, R), E>
+    where
+        F: FnOnce(&mut Reader<'a>) -> Result<R, E>,
+    {
+        self.read_partial(read)
     }
 }
 
@@ -599,6 +647,8 @@ pub trait Readable {
 
 mod error {
     #[cfg(feature = "use_std")]
+    use std::ffi::NulError;
+    #[cfg(feature = "use_std")]
     use std::fmt;
     #[cfg(feature = "use_std")]
     use std::str::Utf8Error;
@@ -653,6 +703,13 @@ mod error {
     #[cfg(feature = "use_std")]
     impl From<FromUtf16Error> for Error {
         fn from(_: FromUtf16Error) -> Self {
+            Error::ParseError
+        }
+    }
+
+    #[cfg(feature = "use_std")]
+    impl From<NulError> for Error {
+        fn from(_: NulError) -> Self {
             Error::ParseError
         }
     }
