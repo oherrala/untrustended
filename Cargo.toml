@@ -4,6 +4,7 @@ version = "0.4.2"
 authors = [ "Ossi Herrala <oherrala@iki.fi>" ]
 license = "ISC"
 edition = "2021"
+rust-version = "1.81"
 
 description = "Untrustended - Untrusted Extended. A compilation of primitives for parsing values from untrusted input."
 homepage = "https://github.com/oherrala/untrustended#readme"
