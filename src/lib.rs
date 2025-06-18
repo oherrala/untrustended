@@ -82,7 +82,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_u16be(&mut self) -> Result<u16, Error> {
-        self.read_be().map_err(From::from)
+        self.read_be()
     }
 
     /// Reads 24 bit unsigned integer in big endian.
@@ -105,7 +105,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_u32be(&mut self) -> Result<u32, Error> {
-        self.read_be().map_err(From::from)
+        self.read_be()
     }
 
     /// Reads 48 bit unsigned integer in big endian.
@@ -128,7 +128,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_u64be(&mut self) -> Result<u64, Error> {
-        self.read_be().map_err(From::from)
+        self.read_be()
     }
 
     /// Reads 128 bit unsigned integer in big endian.
@@ -137,7 +137,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_u128be(&mut self) -> Result<u128, Error> {
-        self.read_be().map_err(From::from)
+        self.read_be()
     }
 
     /// Reads 16 bit unsigned integer in little endian.
@@ -146,7 +146,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_u16le(&mut self) -> Result<u16, Error> {
-        self.read_le().map_err(From::from)
+        self.read_le()
     }
 
     /// Reads 24 bit unsigned integer in little endian.
@@ -169,7 +169,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_u32le(&mut self) -> Result<u32, Error> {
-        self.read_le().map_err(From::from)
+        self.read_le()
     }
 
     /// Reads 48 bit unsigned integer in little endian.
@@ -192,7 +192,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_u64le(&mut self) -> Result<u64, Error> {
-        self.read_le().map_err(From::from)
+        self.read_le()
     }
 
     /// Reads 128 bit unsigned integer in little endian.
@@ -201,7 +201,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_u128le(&mut self) -> Result<u128, Error> {
-        self.read_le().map_err(From::from)
+        self.read_le()
     }
 
     /// Reads 8 bit signed integer.
@@ -219,7 +219,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_i16be(&mut self) -> Result<i16, Error> {
-        self.read_be().map_err(From::from)
+        self.read_be()
     }
 
     /// Reads 24 bit signed integer in big endian.
@@ -242,7 +242,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_i32be(&mut self) -> Result<i32, Error> {
-        self.read_be().map_err(From::from)
+        self.read_be()
     }
 
     /// Reads 48 bit signed integer in big endian.
@@ -265,7 +265,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_i64be(&mut self) -> Result<i64, Error> {
-        self.read_be().map_err(From::from)
+        self.read_be()
     }
 
     /// Reads 128 bit signed integer in big endian.
@@ -274,7 +274,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_i128be(&mut self) -> Result<i128, Error> {
-        self.read_be().map_err(From::from)
+        self.read_be()
     }
 
     /// Reads 16 bit signed integer in little endian.
@@ -283,7 +283,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_i16le(&mut self) -> Result<i16, Error> {
-        self.read_le().map_err(From::from)
+        self.read_le()
     }
 
     /// Reads 24 bit signed integer in little endian.
@@ -306,7 +306,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_i32le(&mut self) -> Result<i32, Error> {
-        self.read_le().map_err(From::from)
+        self.read_le()
     }
 
     /// Reads 48 bit signed integer in little endian.
@@ -329,7 +329,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_i64le(&mut self) -> Result<i64, Error> {
-        self.read_le().map_err(From::from)
+        self.read_le()
     }
 
     /// Reads 128 bit signed integer in little endian.
@@ -338,7 +338,7 @@ pub trait ReaderExt<'a> {
     /// the Reader encountered an end of the input while reading.
     #[inline]
     fn read_i128le(&mut self) -> Result<i128, Error> {
-        self.read_le().map_err(From::from)
+        self.read_le()
     }
 
     /// Reads given amount of bytes.
