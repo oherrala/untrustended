@@ -1,5 +1,7 @@
 #![deny(warnings)]
 
+use core::net::{Ipv4Addr, Ipv6Addr};
+
 use quickcheck::quickcheck;
 
 use untrusted::{Input, Reader};
@@ -417,10 +419,8 @@ fn read_utf16_with_odd_length() {
 }
 
 #[test]
-#[cfg(feature = "use_std")]
 fn read_ipv4addr() {
     use std::io::Write;
-    use std::net::Ipv4Addr;
     let addrs: Vec<Ipv4Addr> = vec![
         "0.0.0.0".parse().expect("parse ipv4 addr"),
         "192.0.2.1".parse().expect("parse ipv4 addr"),
@@ -437,10 +437,8 @@ fn read_ipv4addr() {
 }
 
 #[test]
-#[cfg(feature = "use_std")]
 fn read_ipv6addr() {
     use std::io::Write;
-    use std::net::Ipv6Addr;
     let addrs: Vec<Ipv6Addr> = vec![
         "2001:DB8::".parse().expect("parse ipv6 addr"),
         "2001:DB8:ff00:00ff:f00f:0ff0:0000:ffff"

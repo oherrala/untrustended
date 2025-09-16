@@ -40,12 +40,11 @@
 
 #![cfg_attr(not(feature = "use_std"), no_std)]
 
+use core::net::{Ipv4Addr, Ipv6Addr};
+
 use untrusted::{EndOfInput, Input, Reader};
 
 pub use crate::error::Error;
-
-#[cfg(feature = "use_std")]
-use std::net::{Ipv4Addr, Ipv6Addr};
 
 #[cfg(feature = "use_std")]
 use std::ffi::CString;
@@ -414,22 +413,20 @@ pub trait ReaderExt<'a> {
 
     /// Reads IPv4 address in big endian format.
     ///
-    /// Returns Ok(v) where v is a `Ipv4Addr`, or Err(Error::EndOfInput) if the
+    /// Returns Ok(v) where v is a [Ipv4Addr], or Err(Error::EndOfInput) if the
     /// Reader encountered an end of the input while reading, or
     /// Err(Error::ParseError) if parsing of address failed.
     #[inline]
-    #[cfg(feature = "use_std")]
     fn read_ipv4addr(&mut self) -> Result<Ipv4Addr, Error> {
         self.read_u32be().map(Ipv4Addr::from)
     }
 
     /// Reads IPv6 address in big endian format.
     ///
-    /// Returns Ok(v) where v is a `Ipv6Addr`, or Err(Error::EndOfInput) if the
+    /// Returns Ok(v) where v is a [Ipv6Addr], or Err(Error::EndOfInput) if the
     /// Reader encountered an end of the input while reading, or
     /// Err(Error::ParseError) if parsing of address failed.
     #[inline]
-    #[cfg(feature = "use_std")]
     fn read_ipv6addr(&mut self) -> Result<Ipv6Addr, Error> {
         self.read_u128be().map(Ipv6Addr::from)
     }
@@ -586,7 +583,6 @@ impl FromReader for i128 {
     read_signed!(u128);
 }
 
-#[cfg(feature = "use_std")]
 impl FromReader for Ipv4Addr {
     fn read_be(reader: &mut Reader<'_>) -> Result<Self, Error> {
         reader.read_u32be().map(Ipv4Addr::from)
@@ -597,7 +593,6 @@ impl FromReader for Ipv4Addr {
     }
 }
 
-#[cfg(feature = "use_std")]
 impl FromReader for Ipv6Addr {
     fn read_be(reader: &mut Reader<'_>) -> Result<Self, Error> {
         reader.read_u128be().map(Ipv6Addr::from)
