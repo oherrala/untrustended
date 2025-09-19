@@ -227,6 +227,44 @@ quickcheck! {
     }
 
     #[cfg(feature = "use_std")]
+    fn prop_read_boxu8_with_fromreader(xs: Vec<u8>) -> bool {
+        use std::io::Write;
+        let mut buf = Vec::new();
+        buf.write_all(&xs).expect("write_all");
+        let mut reader = reader(&buf);
+        let xs = Box::from(xs);
+        xs == reader.read_be::<Box<[u8]>>().expect("read_be")
+    }
+
+    #[cfg(feature = "use_std")]
+    fn prop_read_vecu8_with_fromreader(xs: Vec<u8>) -> bool {
+        use std::io::Write;
+        let mut buf = Vec::new();
+        buf.write_all(&xs).expect("write_all");
+        let mut reader = reader(&buf);
+        xs == reader.read_be::<Vec<u8>>().expect("read_be")
+    }
+
+    #[cfg(feature = "use_std")]
+    fn prop_read_boxstr_with_fromreader(xs: String) -> bool {
+        use std::io::Write;
+        let mut buf = Vec::new();
+        buf.write_all(xs.as_bytes()).expect("write_all");
+        let mut reader = reader(&buf);
+        let xs = xs.into_boxed_str();
+        xs == reader.read_be::<Box<str>>().expect("read_be")
+    }
+
+    #[cfg(feature = "use_std")]
+    fn prop_read_string_with_fromreader(xs: String) -> bool {
+        use std::io::Write;
+        let mut buf = Vec::new();
+        buf.write_all(xs.as_bytes()).expect("write_all");
+        let mut reader = reader(&buf);
+        xs == reader.read_be::<String>().expect("read_be")
+    }
+
+    #[cfg(feature = "use_std")]
     fn prop_read_utf16(xs: String) -> bool {
         let mut buf = Vec::new();
         for short in xs.encode_utf16() {

@@ -603,6 +603,62 @@ impl FromReader for Ipv6Addr {
     }
 }
 
+impl FromReader for Box<[u8]> {
+    /// Consume rest of the stream and return it as `Box<[u8]>`
+    fn read_be(reader: &mut Reader<'_>) -> Result<Self, Error> {
+        let buf = reader.read_bytes_to_end().as_slice_less_safe();
+        Ok(buf.into())
+    }
+
+    fn read_le(reader: &mut Reader<'_>) -> Result<Self, Error> {
+        Box::read_be(reader)
+    }
+}
+
+impl FromReader for Vec<u8> {
+    /// Consume rest of the stream and return it as `Vec<u8>`
+    fn read_be(reader: &mut Reader<'_>) -> Result<Self, Error> {
+        let buf = reader.read_bytes_to_end().as_slice_less_safe();
+        Ok(buf.to_vec())
+    }
+
+    fn read_le(reader: &mut Reader<'_>) -> Result<Self, Error> {
+        Vec::read_be(reader)
+    }
+}
+
+impl FromReader for Box<str> {
+    /// Consume rest of the stream and try to parse as UTF-8
+    fn read_be(reader: &mut Reader<'_>) -> Result<Self, Error> {
+        let buf = reader.read_bytes_to_end().as_slice_less_safe();
+        if let Ok(s) = std::str::from_utf8(buf) {
+            return Ok(s.into());
+        }
+        Err(Error::ParseError)
+    }
+
+    // UTF-8 doesn't have little endian version.
+    fn read_le(reader: &mut Reader<'_>) -> Result<Self, Error> {
+        Box::read_be(reader)
+    }
+}
+
+impl FromReader for String {
+    /// Consume rest of the stream and try to parse as UTF-8
+    fn read_be(reader: &mut Reader<'_>) -> Result<Self, Error> {
+        let buf = reader.read_bytes_to_end().as_slice_less_safe();
+        if let Ok(s) = std::str::from_utf8(buf) {
+            return Ok(String::from(s));
+        }
+        Err(Error::ParseError)
+    }
+
+    // UTF-8 doesn't have little endian version.
+    fn read_le(reader: &mut Reader<'_>) -> Result<Self, Error> {
+        String::read_be(reader)
+    }
+}
+
 /// Data structure that can be constructed by reading from [untrusted::Reader]
 ///
 /// # Example
