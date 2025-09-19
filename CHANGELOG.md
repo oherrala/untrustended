@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.4.4] — 2025-09-16
+
+### Added
+* Implement `FromReader` for `Box<str>`, `String`, `Box<[u8]>` and `Vec<u8>`.
+  This makes it easy to read rest of the Input with Reader::read_be().
+
+### Changed
+* Use `Ipv4Addr` and `Ipv6Addr` from `core::net`. This makes them usable also in
+  `no_std` environments.
+
 ## [0.4.3] — 2025-06-18
 
 ### Added

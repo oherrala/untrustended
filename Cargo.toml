@@ -1,6 +1,6 @@
 [package]
 name = "untrustended"
-version = "0.4.3"
+version = "0.4.4"
 authors = [ "Ossi Herrala <oherrala@iki.fi>" ]
 license = "ISC"
 edition = "2021"
