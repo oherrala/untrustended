@@ -3,8 +3,8 @@ name = "untrustended"
 version = "0.4.4"
 authors = [ "Ossi Herrala <oherrala@iki.fi>" ]
 license = "ISC"
-edition = "2021"
-rust-version = "1.81"
+edition = "2024"
+rust-version = "1.93"
 
 description = "Untrustended - Untrusted Extended. A compilation of primitives for parsing values from untrusted input."
 homepage = "https://github.com/oherrala/untrustended#readme"
@@ -28,4 +28,5 @@ untrusted = "0.9"
 [dev-dependencies]
 byteorder = { version = "1", features = [ "std" ] }
 criterion = { version = "0.8", default-features = false }
+pktbuilder = "0.1"
 quickcheck = { version = "1", default-features = false }
