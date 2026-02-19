@@ -26,7 +26,6 @@ use_std = [ ]
 untrusted = "0.9"
 
 [dev-dependencies]
-byteorder = { version = "1", features = [ "std" ] }
 criterion = { version = "0.8", default-features = false }
 pktbuilder = "0.1"
 quickcheck = { version = "1", default-features = false }
