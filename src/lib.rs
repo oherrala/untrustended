@@ -90,9 +90,12 @@ pub trait ReaderExt<'a> {
     ///
     /// Returns Ok(v) where v is the value read, or Err(Error::EndOfInput) if
     /// the Reader is at the end of the input.
-    #[inline]
+    #[inline(always)]
     fn read_u8(&mut self) -> Result<u8, Error> {
-        self.read_byte().map_err(From::from)
+        match self.read_byte() {
+            Ok(v) => Ok(v),
+            Err(EndOfInput) => Err(Error::EndOfInput),
+        }
     }
 
     /// Reads 16 bit unsigned integer in big endian.
@@ -390,7 +393,7 @@ pub trait ReaderExt<'a> {
     #[cfg(feature = "use_std")]
     fn read_utf8(&mut self, num_bytes: usize) -> Result<&'a str, Error> {
         let buf = self.read_bytes_less_safe(num_bytes)?;
-        std::str::from_utf8(buf).map_err(From::from)
+        Ok(std::str::from_utf8(buf)?)
     }
 
     /// Reads bytes as UTF-16 String.
@@ -405,11 +408,11 @@ pub trait ReaderExt<'a> {
     ///
     /// Returns Ok(v) where v is a `String` of bytes read, or
     /// Err(Error::EndOfInput) if the Reader encountered an end of the input
-    /// while reading, or Err(Error::ParseError) if UTF-8 parsing failed.
+    /// while reading, or Err(Error::ParseError) if UTF-16 parsing failed.
     #[inline]
     #[cfg(feature = "use_std")]
     fn read_utf16(&mut self, num_bytes: usize) -> Result<String, Error> {
-        if (num_bytes % 2) != 0 {
+        if !num_bytes.is_multiple_of(2) {
             return Err(Error::ParseError);
         }
         let len16 = num_bytes / 2;
@@ -418,7 +421,7 @@ pub trait ReaderExt<'a> {
             let b = self.read_u16be()?;
             buf.push(b);
         }
-        String::from_utf16(&buf).map_err(From::from)
+        Ok(String::from_utf16(&buf)?)
     }
 
     /// Reads IPv4 address in big endian format.
@@ -428,7 +431,7 @@ pub trait ReaderExt<'a> {
     /// Err(Error::ParseError) if parsing of address failed.
     #[inline]
     fn read_ipv4addr(&mut self) -> Result<Ipv4Addr, Error> {
-        self.read_u32be().map(Ipv4Addr::from)
+        self.read_u32be().map(Ipv4Addr::from_bits)
     }
 
     /// Reads IPv6 address in big endian format.
@@ -438,7 +441,7 @@ pub trait ReaderExt<'a> {
     /// Err(Error::ParseError) if parsing of address failed.
     #[inline]
     fn read_ipv6addr(&mut self) -> Result<Ipv6Addr, Error> {
-        self.read_u128be().map(Ipv6Addr::from)
+        self.read_u128be().map(Ipv6Addr::from_bits)
     }
 
     /// Reads null terminated string.
@@ -516,35 +519,27 @@ pub trait FromReader: Sized {
 
 macro_rules! read_unsigned {
     ($type:ty) => {
-        #[inline]
+        #[inline(always)]
         fn read_be(reader: &mut Reader<'_>) -> Result<Self, Error> {
-            const LEN: usize = core::mem::size_of::<$type>();
-            let mut arr = [0u8; LEN];
-            let slice = reader.read_bytes(LEN)?.as_slice_less_safe();
-            arr.copy_from_slice(slice);
-            Ok(<$type>::from_be_bytes(arr))
+            reader.read_array().map(|arr| <$type>::from_be_bytes(*arr))
         }
 
-        #[inline]
+        #[inline(always)]
         fn read_le(reader: &mut Reader<'_>) -> Result<Self, Error> {
-            const LEN: usize = core::mem::size_of::<$type>();
-            let mut arr = [0u8; LEN];
-            let slice = reader.read_bytes(LEN)?.as_slice_less_safe();
-            arr.copy_from_slice(slice);
-            Ok(<$type>::from_le_bytes(arr))
+            reader.read_array().map(|arr| <$type>::from_le_bytes(*arr))
         }
     };
 }
 
 macro_rules! read_signed {
     ($type:ty) => {
-        #[inline]
+        #[inline(always)]
         fn read_be(reader: &mut Reader<'_>) -> Result<Self, Error> {
             let r = reader.read_be::<$type>()?;
             Ok(r as Self)
         }
 
-        #[inline]
+        #[inline(always)]
         fn read_le(reader: &mut Reader<'_>) -> Result<Self, Error> {
             let r = reader.read_le::<$type>()?;
             Ok(r as Self)
@@ -553,14 +548,14 @@ macro_rules! read_signed {
 }
 
 impl FromReader for u8 {
-    #[inline]
+    #[inline(always)]
     fn read_be(reader: &mut Reader<'_>) -> Result<Self, Error> {
-        reader.read_byte().map_err(From::from)
+        reader.read_u8()
     }
 
-    #[inline]
+    #[inline(always)]
     fn read_le(reader: &mut Reader<'_>) -> Result<Self, Error> {
-        reader.read_byte().map_err(From::from)
+        reader.read_u8()
     }
 }
 
@@ -595,21 +590,21 @@ impl FromReader for i128 {
 
 impl FromReader for Ipv4Addr {
     fn read_be(reader: &mut Reader<'_>) -> Result<Self, Error> {
-        reader.read_u32be().map(Ipv4Addr::from)
+        reader.read_u32be().map(Ipv4Addr::from_bits)
     }
 
     fn read_le(reader: &mut Reader<'_>) -> Result<Self, Error> {
-        reader.read_u32le().map(Ipv4Addr::from)
+        reader.read_u32le().map(Ipv4Addr::from_bits)
     }
 }
 
 impl FromReader for Ipv6Addr {
     fn read_be(reader: &mut Reader<'_>) -> Result<Self, Error> {
-        reader.read_u128be().map(Ipv6Addr::from)
+        reader.read_u128be().map(Ipv6Addr::from_bits)
     }
 
     fn read_le(reader: &mut Reader<'_>) -> Result<Self, Error> {
-        reader.read_u128le().map(Ipv6Addr::from)
+        reader.read_u128le().map(Ipv6Addr::from_bits)
     }
 }
 
