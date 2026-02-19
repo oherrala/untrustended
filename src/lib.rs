@@ -76,6 +76,16 @@ pub trait ReaderExt<'a> {
     where
         F: FnOnce(&mut Reader<'a>) -> Result<R, E>;
 
+    /// Skips N bytes of the input, returning the skipped input as an array.
+    ///
+    /// Returns Ok(i) where i is an array if there are at least N of input
+    /// remaining, and Err(EndOfInput) otherwise.
+    #[inline]
+    fn read_array<const N: usize>(&mut self) -> Result<&'a [u8; N], Error> {
+        self.read_bytes_less_safe(N)
+            .and_then(|s| s.as_array().ok_or(Error::EndOfInput))
+    }
+
     /// Reads 8 bit unsigned integer.
     ///
     /// Returns Ok(v) where v is the value read, or Err(Error::EndOfInput) if
