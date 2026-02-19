@@ -27,5 +27,5 @@ untrusted = "0.9"
 
 [dev-dependencies]
 byteorder = { version = "1", features = [ "std" ] }
-criterion = { version = "0.6", default-features = false }
+criterion = { version = "0.8", default-features = false }
 quickcheck = { version = "1", default-features = false }
