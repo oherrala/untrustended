@@ -19,26 +19,21 @@ jobs:
         run: |
           rustup toolchain install ${{ matrix.rust }} --profile minimal
           rustup override set ${{ matrix.rust }}
-      - uses: actions/checkout@v4
-      - run: cargo check -v
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - run: cargo test -v
 
-  clippy:
+  lints:
     runs-on: ubuntu-latest
     steps:
       - name: Install Rust stable
         run: |
           rustup toolchain install stable --profile minimal
           rustup override set stable
-      - uses: actions/checkout@v4
-      - run: cargo clippy -- -D warnings
-
-  rustfmt:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install Rust stable
-        run: |
-          rustup toolchain install stable --profile minimal
-          rustup override set stable
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - run: cargo fmt --all -- --check
+      - run: cargo check -v
+      - run: cargo clippy -- -D warnings
