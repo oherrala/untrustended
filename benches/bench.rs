@@ -1,7 +1,7 @@
 use std::hint::black_box;
 use std::net::{Ipv4Addr, Ipv6Addr};
 
-use criterion::{criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, criterion_group, criterion_main};
 use untrusted::{Input, Reader};
 use untrustended::ReaderExt;
 
