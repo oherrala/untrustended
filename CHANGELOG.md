@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.4.5] — 2026-02-20
+
+### Added
+* Introduce `read_array<const N: usize>()` method that returns `[u8; N]` where `N` is specified
+  as a compile time constant.
+
+### Changed
+* Update to Rust [2024
+  edition](https://doc.rust-lang.org/edition-guide/rust-2024/index.html).
+  Minimum supported Rust version is now 1.93.0.
+
 ## [0.4.4] — 2025-09-16
 
 ### Added
