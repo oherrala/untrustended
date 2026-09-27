@@ -608,6 +608,7 @@ impl FromReader for Ipv6Addr {
     }
 }
 
+#[cfg(feature = "use_std")]
 impl FromReader for Box<[u8]> {
     /// Consume rest of the stream and return it as `Box<[u8]>`
     fn read_be(reader: &mut Reader<'_>) -> Result<Self, Error> {
@@ -620,6 +621,7 @@ impl FromReader for Box<[u8]> {
     }
 }
 
+#[cfg(feature = "use_std")]
 impl FromReader for Vec<u8> {
     /// Consume rest of the stream and return it as `Vec<u8>`
     fn read_be(reader: &mut Reader<'_>) -> Result<Self, Error> {
@@ -632,6 +634,7 @@ impl FromReader for Vec<u8> {
     }
 }
 
+#[cfg(feature = "use_std")]
 impl FromReader for Box<str> {
     /// Consume rest of the stream and try to parse as UTF-8
     fn read_be(reader: &mut Reader<'_>) -> Result<Self, Error> {
@@ -648,6 +651,7 @@ impl FromReader for Box<str> {
     }
 }
 
+#[cfg(feature = "use_std")]
 impl FromReader for String {
     /// Consume rest of the stream and try to parse as UTF-8
     fn read_be(reader: &mut Reader<'_>) -> Result<Self, Error> {
