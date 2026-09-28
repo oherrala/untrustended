@@ -32,3 +32,71 @@ untrusted = "0.9"
 criterion = { version = "0.8", default-features = false }
 pktbuilder = "0.1"
 quickcheck = { version = "1", default-features = false }
+
+[lints.rust]
+# Lint groups
+deprecated_safe = { level = "deny", priority = -1 }
+future_incompatible = { level = "deny", priority = -1 }
+keyword_idents = { level = "deny", priority = -1 }
+let_underscore = { level = "deny", priority = -1 }
+nonstandard_style = { level = "deny", priority = -1 }
+refining_impl_trait = { level = "deny", priority = -1 }
+rust_2018_compatibility = { level = "deny", priority = -1 }
+rust_2018_idioms = { level = "deny", priority = -1 }
+rust_2021_compatibility = { level = "deny", priority = -1 }
+rust_2024_compatibility = { level = "deny", priority = -1 }
+unknown_or_malformed_diagnostic_attributes = { level = "deny", priority = -1 }
+unused = { level = "deny", priority = -1 }
+warnings = { level = "deny", priority = -1 }
+
+# Lonely lints
+unsafe_code = "deny"
+
+[lints.clippy]
+# See https://doc.rust-lang.org/nightly/clippy/lints.html
+cargo = { level = "deny", priority = -1 }
+complexity = { level = "deny", priority = -1 }
+correctness = { level = "deny", priority = -1 }
+pedantic = { level = "deny", priority = -1 }
+perf = { level = "deny", priority = -1 }
+# restriction = { level = "warn", priority = -1 }
+style = { level = "deny", priority = -1 }
+suspicious = { level = "deny", priority = -1 }
+
+# Lonely lints
+missing_errors_doc = "allow"
+
+# From restrictions group
+allow_attributes = "deny"
+arithmetic_side_effects = "deny"
+as_conversions = "deny"
+as_pointer_underscore = "deny"
+as_underscore = "deny"
+assertions_on_result_states = "deny"
+big_endian_bytes = "deny"
+doc_paragraphs_missing_punctuation = "deny"
+exhaustive_enums = "deny"
+float_arithmetic = "deny"
+host_endian_bytes = "deny"
+indexing_slicing = "deny"
+integer_division = "deny"
+integer_division_remainder_used = "deny"
+let_underscore_must_use = "deny"
+let_underscore_untyped = "deny"
+little_endian_bytes = "deny"
+mem_forget = "deny"
+min_ident_chars = "deny"
+missing_docs_in_private_items = "deny"
+missing_inline_in_public_items = "deny"
+missing_trait_methods = "deny"
+modulo_arithmetic = "deny"
+panic = "deny"
+panic_in_result_fn = "deny"
+precedence_bits = "deny"
+return_and_then = "deny"
+std_instead_of_core = "deny"
+str_to_string = "deny"
+string_slice = "deny"
+unused_result_ok = "deny"
+unwrap_in_result = "deny"
+unwrap_used = "deny"

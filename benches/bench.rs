@@ -1,5 +1,8 @@
-use std::hint::black_box;
-use std::net::{Ipv4Addr, Ipv6Addr};
+#![expect(clippy::redundant_feature_names, reason = "`use-std` feature is redundant for now")]
+#![allow(clippy::missing_inline_in_public_items, clippy::missing_docs_in_private_items)]
+
+use core::hint::black_box;
+use core::net::{Ipv4Addr, Ipv6Addr};
 
 use criterion::{Criterion, criterion_group, criterion_main};
 use untrusted::{Input, Reader};
@@ -8,22 +11,22 @@ use untrustended::ReaderExt;
 criterion_group!(benches, criterion_benchmark);
 criterion_main!(benches);
 
-pub fn criterion_benchmark(c: &mut Criterion) {
+pub fn criterion_benchmark(criterion: &mut Criterion) {
     let ipv4_header = generate_ipv4_header();
     let ipv6_header = generate_ipv6_header();
 
-    c.bench_function("parse_ipv4_header", |b| {
+    criterion.bench_function("parse_ipv4_header", |bench| {
         let input = Input::from(&ipv4_header);
-        b.iter(|| black_box(input.read_all(untrustended::Error::EndOfInput, parse_ipv4_header)))
+        bench.iter(|| black_box(input.read_all(untrustended::Error::EndOfInput, parse_ipv4_header)));
     });
 
-    c.bench_function("parse_ipv6_header", |b| {
+    criterion.bench_function("parse_ipv6_header", |bench| {
         let input = Input::from(&ipv6_header);
-        b.iter(|| black_box(input.read_all(untrustended::Error::EndOfInput, parse_ipv6_header)))
+        bench.iter(|| black_box(input.read_all(untrustended::Error::EndOfInput, parse_ipv6_header)));
     });
 }
 
-fn parse_ipv4_header(input: &mut Reader) -> Result<(Ipv4Addr, Ipv4Addr), untrustended::Error> {
+fn parse_ipv4_header(input: &mut Reader<'_>) -> Result<(Ipv4Addr, Ipv4Addr), untrustended::Error> {
     // RFC791 Section 3.1
     //
     //  0                   1                   2                   3
@@ -75,7 +78,7 @@ fn generate_ipv4_header() -> Vec<u8> {
     buf
 }
 
-fn parse_ipv6_header(input: &mut Reader) -> Result<(Ipv6Addr, Ipv6Addr), untrustended::Error> {
+fn parse_ipv6_header(input: &mut Reader<'_>) -> Result<(Ipv6Addr, Ipv6Addr), untrustended::Error> {
     // RFC2460 Section 3.
     //
     // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
