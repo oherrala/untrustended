@@ -38,16 +38,30 @@
 //! }
 //! ```
 
-#![cfg_attr(not(feature = "use_std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std)]
 
 use core::net::{Ipv4Addr, Ipv6Addr};
+use core::str;
 
 use untrusted::{EndOfInput, Input, Reader};
 
 pub use crate::error::Error;
 
-#[cfg(feature = "use_std")]
+#[cfg(feature = "std")]
 use std::ffi::CString;
+
+#[cfg(all(not(feature = "std"), feature = "alloc"))]
+extern crate alloc;
+
+#[cfg(all(not(feature = "std"), feature = "alloc"))]
+use alloc::ffi::CString;
+
+#[cfg(all(not(feature = "std"), feature = "alloc"))]
+use alloc::boxed::Box;
+#[cfg(all(not(feature = "std"), feature = "alloc"))]
+use alloc::string::String;
+#[cfg(all(not(feature = "std"), feature = "alloc"))]
+use alloc::vec::Vec;
 
 /// A trait extending [untrusted](https://crates.io/crates/untrusted)'s
 /// [`Reader`](https://briansmith.org/rustdoc/untrusted/struct.Reader.html).
@@ -390,10 +404,9 @@ pub trait ReaderExt<'a> {
     /// Err(Error::EndOfInput) if the Reader encountered an end of the input
     /// while reading, or Err(Error::ParseError) if UTF-8 parsing failed.
     #[inline]
-    #[cfg(feature = "use_std")]
     fn read_utf8(&mut self, num_bytes: usize) -> Result<&'a str, Error> {
         let buf = self.read_bytes_less_safe(num_bytes)?;
-        Ok(std::str::from_utf8(buf)?)
+        Ok(str::from_utf8(buf)?)
     }
 
     /// Reads bytes as UTF-16 String.
@@ -410,7 +423,7 @@ pub trait ReaderExt<'a> {
     /// Err(Error::EndOfInput) if the Reader encountered an end of the input
     /// while reading, or Err(Error::ParseError) if UTF-16 parsing failed.
     #[inline]
-    #[cfg(feature = "use_std")]
+    #[cfg(feature = "std")]
     fn read_utf16(&mut self, num_bytes: usize) -> Result<String, Error> {
         if !num_bytes.is_multiple_of(2) {
             return Err(Error::ParseError);
@@ -454,7 +467,7 @@ pub trait ReaderExt<'a> {
     /// Reader encountered an end of the input while reading, or
     /// Err(Error::ParseError) if null termination couldn't be found.
     #[inline]
-    #[cfg(feature = "use_std")]
+    #[cfg(any(feature = "std", feature = "alloc"))]
     fn read_cstring(&mut self, max_num_bytes: usize) -> Result<CString, Error> {
         let reader = |input: &mut Reader<'_>| -> Result<(), Error> {
             for _ in 0..max_num_bytes {
@@ -608,7 +621,7 @@ impl FromReader for Ipv6Addr {
     }
 }
 
-#[cfg(feature = "use_std")]
+#[cfg(any(feature = "std", feature = "alloc"))]
 impl FromReader for Box<[u8]> {
     /// Consume rest of the stream and return it as `Box<[u8]>`
     fn read_be(reader: &mut Reader<'_>) -> Result<Self, Error> {
@@ -621,7 +634,7 @@ impl FromReader for Box<[u8]> {
     }
 }
 
-#[cfg(feature = "use_std")]
+#[cfg(any(feature = "std", feature = "alloc"))]
 impl FromReader for Vec<u8> {
     /// Consume rest of the stream and return it as `Vec<u8>`
     fn read_be(reader: &mut Reader<'_>) -> Result<Self, Error> {
@@ -634,12 +647,12 @@ impl FromReader for Vec<u8> {
     }
 }
 
-#[cfg(feature = "use_std")]
+#[cfg(any(feature = "std", feature = "alloc"))]
 impl FromReader for Box<str> {
     /// Consume rest of the stream and try to parse as UTF-8
     fn read_be(reader: &mut Reader<'_>) -> Result<Self, Error> {
         let buf = reader.read_bytes_to_end().as_slice_less_safe();
-        if let Ok(s) = std::str::from_utf8(buf) {
+        if let Ok(s) = str::from_utf8(buf) {
             return Ok(s.into());
         }
         Err(Error::ParseError)
@@ -651,12 +664,12 @@ impl FromReader for Box<str> {
     }
 }
 
-#[cfg(feature = "use_std")]
+#[cfg(any(feature = "std", feature = "alloc"))]
 impl FromReader for String {
     /// Consume rest of the stream and try to parse as UTF-8
     fn read_be(reader: &mut Reader<'_>) -> Result<Self, Error> {
         let buf = reader.read_bytes_to_end().as_slice_less_safe();
-        if let Ok(s) = std::str::from_utf8(buf) {
+        if let Ok(s) = str::from_utf8(buf) {
             return Ok(String::from(s));
         }
         Err(Error::ParseError)
@@ -706,14 +719,8 @@ pub trait Readable {
 }
 
 mod error {
-    #[cfg(feature = "use_std")]
-    use std::ffi::NulError;
-    #[cfg(feature = "use_std")]
-    use std::fmt;
-    #[cfg(feature = "use_std")]
-    use std::str::Utf8Error;
-    #[cfg(feature = "use_std")]
-    use std::string::FromUtf16Error;
+    use core::fmt;
+    use core::str::Utf8Error;
     use untrusted::EndOfInput;
 
     /// Possible errors raised by `ReaderExt`.
@@ -732,10 +739,8 @@ mod error {
         UnknownError,
     }
 
-    #[cfg(feature = "use_std")]
-    impl std::error::Error for Error {}
+    impl core::error::Error for Error {}
 
-    #[cfg(feature = "use_std")]
     impl fmt::Display for Error {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
             match *self {
@@ -753,23 +758,29 @@ mod error {
         }
     }
 
-    #[cfg(feature = "use_std")]
     impl From<Utf8Error> for Error {
         fn from(_: Utf8Error) -> Self {
             Error::ParseError
         }
     }
 
-    #[cfg(feature = "use_std")]
-    impl From<FromUtf16Error> for Error {
-        fn from(_: FromUtf16Error) -> Self {
+    #[cfg(feature = "std")]
+    impl From<std::string::FromUtf16Error> for Error {
+        fn from(_: std::string::FromUtf16Error) -> Self {
             Error::ParseError
         }
     }
 
-    #[cfg(feature = "use_std")]
-    impl From<NulError> for Error {
-        fn from(_: NulError) -> Self {
+    #[cfg(feature = "std")]
+    impl From<std::ffi::NulError> for Error {
+        fn from(_: std::ffi::NulError) -> Self {
+            Error::ParseError
+        }
+    }
+
+    #[cfg(all(not(feature = "std"), feature = "alloc"))]
+    impl From<alloc::ffi::NulError> for Error {
+        fn from(_: alloc::ffi::NulError) -> Self {
             Error::ParseError
         }
     }

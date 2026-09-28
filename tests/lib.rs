@@ -1,11 +1,20 @@
 #![deny(warnings)]
 
+#[cfg(all(not(feature = "std"), feature = "alloc"))]
+extern crate alloc;
+
 use core::net::{Ipv4Addr, Ipv6Addr};
 
 use quickcheck::quickcheck;
 
 use untrusted::{Input, Reader};
 use untrustended::ReaderExt;
+
+#[cfg(feature = "std")]
+use std::ffi::CString;
+
+#[cfg(all(not(feature = "std"), feature = "alloc"))]
+use alloc::ffi::CString;
 
 #[inline]
 fn reader(buf: &'_ [u8]) -> Reader<'_> {
@@ -207,7 +216,7 @@ quickcheck! {
         xs == reader.read_bytes_less_safe(xs.len()).expect("read_bytes_less_safes")
     }
 
-    #[cfg(feature = "use_std")]
+    #[cfg(any(feature = "std", feature = "alloc"))]
     fn prop_read_utf8(xs: String) -> bool {
         use std::io::Write;
         let mut buf = Vec::new();
@@ -217,7 +226,7 @@ quickcheck! {
         xs == reader.read_utf8(len).expect("read_utf8")
     }
 
-    #[cfg(feature = "use_std")]
+    #[cfg(any(feature = "std", feature = "alloc"))]
     fn prop_read_boxu8_with_fromreader(xs: Vec<u8>) -> bool {
         use std::io::Write;
         let mut buf = Vec::new();
@@ -227,7 +236,7 @@ quickcheck! {
         xs == reader.read_be::<Box<[u8]>>().expect("read_be")
     }
 
-    #[cfg(feature = "use_std")]
+    #[cfg(any(feature = "std", feature = "alloc"))]
     fn prop_read_vecu8_with_fromreader(xs: Vec<u8>) -> bool {
         use std::io::Write;
         let mut buf = Vec::new();
@@ -236,7 +245,7 @@ quickcheck! {
         xs == reader.read_be::<Vec<u8>>().expect("read_be")
     }
 
-    #[cfg(feature = "use_std")]
+    #[cfg(any(feature = "std", feature = "alloc"))]
     fn prop_read_boxstr_with_fromreader(xs: String) -> bool {
         use std::io::Write;
         let mut buf = Vec::new();
@@ -246,7 +255,7 @@ quickcheck! {
         xs == reader.read_be::<Box<str>>().expect("read_be")
     }
 
-    #[cfg(feature = "use_std")]
+    #[cfg(any(feature = "std", feature = "alloc"))]
     fn prop_read_string_with_fromreader(xs: String) -> bool {
         use std::io::Write;
         let mut buf = Vec::new();
@@ -255,7 +264,7 @@ quickcheck! {
         xs == reader.read_be::<String>().expect("read_be")
     }
 
-    #[cfg(feature = "use_std")]
+    #[cfg(feature = "std")]
     fn prop_read_utf16(xs: String) -> bool {
         let mut buf = vec![0xCD; 1500];
         if xs.is_ascii() || xs.len() > buf.len() {
@@ -271,14 +280,14 @@ quickcheck! {
         xs == reader.read_utf16(len).expect("read_utf16")
     }
 
-    #[cfg(feature = "use_std")]
-    fn prop_read_cstring(xs: std::ffi::CString) -> bool {
+    #[cfg(any(feature = "std", feature = "alloc"))]
+    fn prop_read_cstring(xs: CString) -> bool {
         let mut reader = reader(xs.as_bytes_with_nul());
         xs == reader.read_cstring(usize::MAX).expect("read_cstring")
     }
 
-    #[cfg(feature = "use_std")]
-    fn prop_read_multiple_cstrings(xs: Vec<std::ffi::CString>) -> bool {
+    #[cfg(any(feature = "std", feature = "alloc"))]
+    fn prop_read_multiple_cstrings(xs: Vec<CString>) -> bool {
         use std::io::Write;
         let mut buf = Vec::new();
         for x in &xs {
@@ -433,7 +442,7 @@ fn read_i64le_specials() {
 }
 
 #[test]
-#[cfg(feature = "use_std")]
+#[cfg(feature = "std")]
 fn read_utf16_with_odd_length() {
     let mut reader = reader(&[]);
     match reader.read_utf16(3) {
@@ -481,7 +490,7 @@ fn read_ipv6addr() {
 }
 
 #[test]
-#[cfg(feature = "use_std")]
+#[cfg(feature = "std")]
 fn read_cstring() {
     use std::ffi::CStr;
     const TESTS: &[&CStr] = &[c"", c"a", c"aaaaaaa", c"Hello World!"];
@@ -494,7 +503,7 @@ fn read_cstring() {
 }
 
 #[test]
-#[cfg(feature = "use_std")]
+#[cfg(feature = "std")]
 fn read_cstring_invalid_string() {
     const TESTS: &[&[u8]] = &[b"", b"a", b"aaaaaaa", b"Hello World!"];
 
@@ -508,7 +517,7 @@ fn read_cstring_invalid_string() {
 }
 
 #[test]
-#[cfg(feature = "use_std")]
+#[cfg(feature = "std")]
 fn read_cstring_missing_null() {
     const TESTS: &[&[u8]] = &[b"aaaaaaa", b"Hello World!"];
 

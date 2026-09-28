@@ -19,8 +19,11 @@ name = "bench"
 harness = false
 
 [features]
-default = [ "use_std" ]
-use_std = [ ]
+default = [ "std" ]
+alloc = []
+std = []
+# `use_std` feature will be deprecated in the future. Use `std` feature instead.
+use_std = [ "std" ]
 
 [dependencies]
 untrusted = "0.9"
