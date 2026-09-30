@@ -267,6 +267,7 @@ quickcheck! {
     }
 
     #[cfg(feature = "std")]
+    #[expect(deprecated)]
     fn prop_read_utf16(xs: String) -> bool {
         let mut buf = vec![0xCD; 1500];
         if xs.is_ascii() || xs.len() > buf.len() {
@@ -291,7 +292,8 @@ quickcheck! {
     #[cfg(any(feature = "std", feature = "alloc"))]
     fn prop_read_multiple_cstrings(xs: Vec<CString>) -> bool {
         use std::io::Write;
-        let mut buf = Vec::new();
+        let len = xs.iter().map(|s| s.count_bytes() + 1).sum::<usize>();
+        let mut buf = Vec::with_capacity(len);
         for x in &xs {
             buf.write_all(x.as_bytes_with_nul()).expect("write_all");
         }
@@ -445,6 +447,55 @@ fn read_i64le_specials() {
 
 #[test]
 #[cfg(feature = "std")]
+fn read_utf16be() {
+    const BUF: &[u8] = &[
+        0xFE, 0xFF, // BOM
+        0x00, 0x57, 0x00, 0x69, 0x00, 0x65, 0x00, 0x6e, 0x00, 0x69, 0x00, 0x6c, 0x00, 0xe4, 0x00, 0x69, 0x00, 0x6e,
+        0x00, 0x65, 0x00, 0x6e, 0x00, 0x20, 0x00, 0xf6, 0x00, 0x6b, 0x00, 0x79, 0x00, 0x7a, 0x00, 0x6f, 0x00, 0x6d,
+        0x00, 0x62, 0x00, 0x69, 0x00, 0x65, 0x00, 0x20, 0x00, 0xc5, 0x00, 0x73, 0x00, 0x61, 0x00, 0x6e,
+    ];
+
+    // With BOM
+    let Ok(s) = reader(BUF).read_utf16be(BUF.len()) else {
+        unreachable!("Test shouldn't reach here");
+    };
+    assert_eq!(s, "Wieniläinen ökyzombie Åsan");
+
+    // Without BOM
+    let no_bom = BUF.get(2..).expect("we have enough bytes");
+    let Ok(s) = reader(no_bom).read_utf16be(no_bom.len()) else {
+        unreachable!("Test shouldn't reach here");
+    };
+    assert_eq!(s, "Wieniläinen ökyzombie Åsan");
+}
+
+#[test]
+#[cfg(feature = "std")]
+fn read_utf16le() {
+    const BUF: &[u8] = &[
+        0xFF, 0xFE, // BOM
+        0x57, 0x00, 0x69, 0x00, 0x65, 0x00, 0x6e, 0x00, 0x69, 0x00, 0x6c, 0x00, 0xe4, 0x00, 0x69, 0x00, 0x6e, 0x00,
+        0x65, 0x00, 0x6e, 0x00, 0x20, 0x00, 0xf6, 0x00, 0x6b, 0x00, 0x79, 0x00, 0x7a, 0x00, 0x6f, 0x00, 0x6d, 0x00,
+        0x62, 0x00, 0x69, 0x00, 0x65, 0x00, 0x20, 0x00, 0xc5, 0x00, 0x73, 0x00, 0x61, 0x00, 0x6e, 0x00,
+    ];
+
+    // With BOM
+    let Ok(s) = reader(BUF).read_utf16le(BUF.len()) else {
+        unreachable!("Test shouldn't reach here");
+    };
+    assert_eq!(s, "Wieniläinen ökyzombie Åsan");
+
+    // Without BOM
+    let no_bom = BUF.get(2..).expect("we have enough bytes");
+    let Ok(s) = reader(no_bom).read_utf16le(no_bom.len()) else {
+        unreachable!("Test shouldn't reach here");
+    };
+    assert_eq!(s, "Wieniläinen ökyzombie Åsan");
+}
+
+#[test]
+#[cfg(feature = "std")]
+#[expect(deprecated)]
 fn read_utf16_with_odd_length() {
     let mut reader = reader(&[]);
     match reader.read_utf16(3) {

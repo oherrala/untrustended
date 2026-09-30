@@ -421,6 +421,7 @@ pub trait ReaderExt<'a> {
     /// while reading, or Err([`Error::ParseError`]) if UTF-16 parsing failed.
     #[inline]
     #[cfg(feature = "std")]
+    #[deprecated(note = "Use from_utf16be() or from_utf16le() instead")]
     fn read_utf16(&mut self, num_bytes: usize) -> Result<String, Error> {
         if !num_bytes.is_multiple_of(2) {
             return Err(Error::ParseError);
@@ -431,6 +432,58 @@ pub trait ReaderExt<'a> {
             buf.push(self.read_u16be()?);
         }
         Ok(String::from_utf16(&buf)?)
+    }
+
+    /// Reads bytes as UTF-16BE (big endian) String.
+    ///
+    /// Length is the amount of bytes to read, not the amount of Unicode
+    /// characters.
+    ///
+    /// Read bytes are validated to be valid UTF-16 and the optional byte order
+    /// mark (BOM) is removed from the beginning of the string.
+    ///
+    /// Returns Ok(v) where v is a `String` of bytes read, or
+    /// Err([`Error::EndOfInput`]) if the Reader encountered an end of the input
+    /// while reading, or Err([`Error::ParseError`]) if UTF-16 parsing failed.
+    #[inline]
+    #[cfg(feature = "std")]
+    fn read_utf16be(&mut self, num_bytes: usize) -> Result<String, Error> {
+        if !num_bytes.is_multiple_of(2) {
+            return Err(Error::ParseError);
+        }
+        let bytes = self.read_bytes_less_safe(num_bytes)?;
+        if bytes.starts_with(&[0xFE, 0xFF])
+            && let Some(no_bom) = bytes.get(2..)
+        {
+            return Ok(String::from_utf16be(no_bom)?);
+        }
+        Ok(String::from_utf16be(bytes)?)
+    }
+
+    /// Reads bytes as UTF-16LE (little endian) String.
+    ///
+    /// Length is the amount of bytes to read, not the amount of Unicode
+    /// characters.
+    ///
+    /// Read bytes are validated to be valid UTF-16 and the optional byte order
+    /// mark (BOM) is removed from the beginning of the string.
+    ///
+    /// Returns Ok(v) where v is a `String` of bytes read, or
+    /// Err([`Error::EndOfInput`]) if the Reader encountered an end of the input
+    /// while reading, or Err([`Error::ParseError`]) if UTF-16 parsing failed.
+    #[inline]
+    #[cfg(feature = "std")]
+    fn read_utf16le(&mut self, num_bytes: usize) -> Result<String, Error> {
+        if !num_bytes.is_multiple_of(2) {
+            return Err(Error::ParseError);
+        }
+        let bytes = self.read_bytes_less_safe(num_bytes)?;
+        if bytes.starts_with(&[0xFF, 0xFE])
+            && let Some(no_bom) = bytes.get(2..)
+        {
+            return Ok(String::from_utf16le(no_bom)?);
+        }
+        Ok(String::from_utf16le(bytes)?)
     }
 
     /// Reads IPv4 address in big endian format.
