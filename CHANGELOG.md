@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.7] — TBD
+
+### Added
+* Introduce `from_utf16be()` and `from_utf16be()` methods for reading UTF-16
+  strings that are either big or little endian.
+
+### Changed
+* Minimum supported Rust version is 1.98.0.
+
+### Deprecated
+* Mark `from_utf16()` as deprecated. Use `from_utf16be()` or `from_utf16be()`
+  methods instead.
+
 ## [0.4.6] — 2026-09-27
 
 ### Fixed
@@ -25,7 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 * Implement `FromReader` for `Box<str>`, `String`, `Box<[u8]>` and `Vec<u8>`.
-  This makes it easy to read rest of the Input with Reader::read_be().
+  This makes it easy to read rest of the Input with `Reader::read_be()`.
 
 ### Changed
 * Use `Ipv4Addr` and `Ipv6Addr` from `core::net`. This makes them usable also in

@@ -267,6 +267,7 @@ quickcheck! {
     }
 
     #[cfg(feature = "std")]
+    #[expect(deprecated)]
     fn prop_read_utf16(xs: String) -> bool {
         let mut buf = vec![0xCD; 1500];
         if xs.is_ascii() || xs.len() > buf.len() {
@@ -445,6 +446,7 @@ fn read_i64le_specials() {
 
 #[test]
 #[cfg(feature = "std")]
+#[expect(deprecated)]
 fn read_utf16_with_odd_length() {
     let mut reader = reader(&[]);
     match reader.read_utf16(3) {
