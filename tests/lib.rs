@@ -1,4 +1,9 @@
 #![deny(warnings)]
+#![expect(clippy::arithmetic_side_effects, clippy::min_ident_chars, clippy::big_endian_bytes)]
+#![expect(clippy::redundant_feature_names, reason = "`use-std` feature is redundant for now")]
+
+#[cfg(all(not(feature = "std"), feature = "alloc"))]
+extern crate alloc;
 
 use core::net::{Ipv4Addr, Ipv6Addr};
 
@@ -6,6 +11,12 @@ use quickcheck::quickcheck;
 
 use untrusted::{Input, Reader};
 use untrustended::ReaderExt;
+
+#[cfg(feature = "std")]
+use std::ffi::CString;
+
+#[cfg(all(not(feature = "std"), feature = "alloc"))]
+use alloc::ffi::CString;
 
 #[inline]
 fn reader(buf: &'_ [u8]) -> Reader<'_> {
@@ -116,7 +127,7 @@ quickcheck! {
 
     fn prop_read_i16be(xs: i16) -> bool {
         let mut buf = vec![0xCD; 16];
-        builder(&mut buf).add_u16_be(xs as u16).expect("write_byte");
+        builder(&mut buf).add_u16_be(xs.cast_unsigned()).expect("write_byte");
         let mut reader = reader(&buf);
         xs == reader.read_i16be().expect("read_i16be")
     }
@@ -131,7 +142,7 @@ quickcheck! {
 
     fn prop_read_i32be(xs: i32) -> bool {
         let mut buf = vec![0xCD; 16];
-        builder(&mut buf).add_u32_be(xs as u32).expect("write_byte");
+        builder(&mut buf).add_u32_be(xs.cast_unsigned()).expect("write_byte");
         let mut reader = reader(&buf);
         xs == reader.read_i32be().expect("read_i32be")
     }
@@ -146,21 +157,21 @@ quickcheck! {
 
     fn prop_read_i64be(xs: i64) -> bool {
         let mut buf = vec![0xCD; 16];
-        builder(&mut buf).add_u64_be(xs as u64).expect("write_byte");
+        builder(&mut buf).add_u64_be(xs.cast_unsigned()).expect("write_byte");
         let mut reader = reader(&buf);
         xs == reader.read_i64be().expect("read_i64be")
     }
 
     fn prop_read_i128be(xs: i128) -> bool {
         let mut buf = vec![0xCD; 16];
-        builder(&mut buf).add_u128_be(xs as u128).expect("write_byte");
+        builder(&mut buf).add_u128_be(xs.cast_unsigned()).expect("write_byte");
         let mut reader = reader(&buf);
         xs == reader.read_i128be().expect("read_i128be")
     }
 
    fn prop_read_i16le(xs: i16) -> bool {
         let mut buf = vec![0xCD; 16];
-        builder(&mut buf).add_u16_le(xs as u16).expect("write_byte");
+        builder(&mut buf).add_u16_le(xs.cast_unsigned()).expect("write_byte");
         let mut reader = reader(&buf);
         xs == reader.read_i16le().expect("read_i16le")
     }
@@ -168,14 +179,14 @@ quickcheck! {
     fn prop_read_i24le(xs: i32) -> bool {
         let xs = xs >> 8;
         let mut buf = vec![0xCD; 16];
-        builder(&mut buf).add_u32_le(xs as u32).expect("add_u32_le");
+        builder(&mut buf).add_u32_le(xs.cast_unsigned()).expect("add_u32_le");
         let mut reader = reader(&buf);
         xs == reader.read_i24le().expect("read_i24le")
     }
 
     fn prop_read_i32le(xs: i32) -> bool {
         let mut buf = vec![0xCD; 16];
-        builder(&mut buf).add_u32_le(xs as u32).expect("write_byte");
+        builder(&mut buf).add_u32_le(xs.cast_unsigned()).expect("write_byte");
         let mut reader = reader(&buf);
         xs == reader.read_i32le().expect("read_i32le")
     }
@@ -183,21 +194,21 @@ quickcheck! {
     fn prop_read_i48le(xs: i64) -> bool {
         let xs = xs >> 16;
         let mut buf = vec![0xCD; 16];
-        builder(&mut buf).add_u64_le(xs as u64).expect("add_u64_be");
+        builder(&mut buf).add_u64_le(xs.cast_unsigned()).expect("add_u64_be");
         let mut reader = reader(&buf);
         xs == reader.read_i48le().expect("read_i48le")
     }
 
     fn prop_read_i64le(xs: i64) -> bool {
         let mut buf = vec![0xCD; 16];
-        builder(&mut buf).add_u64_le(xs as u64).expect("write_byte");
+        builder(&mut buf).add_u64_le(xs.cast_unsigned()).expect("write_byte");
         let mut reader = reader(&buf);
         xs == reader.read_i64le().expect("read_i64le")
     }
 
     fn prop_read_i128le(xs: i128) -> bool {
         let mut buf = vec![0xCD; 16];
-        builder(&mut buf).add_u128_le(xs as u128).expect("write_byte");
+        builder(&mut buf).add_u128_le(xs.cast_unsigned()).expect("write_byte");
         let mut reader = reader(&buf);
         xs == reader.read_i128le().expect("read_i128le")
     }
@@ -207,7 +218,7 @@ quickcheck! {
         xs == reader.read_bytes_less_safe(xs.len()).expect("read_bytes_less_safes")
     }
 
-    #[cfg(feature = "use_std")]
+    #[cfg(any(feature = "std", feature = "alloc"))]
     fn prop_read_utf8(xs: String) -> bool {
         use std::io::Write;
         let mut buf = Vec::new();
@@ -217,7 +228,7 @@ quickcheck! {
         xs == reader.read_utf8(len).expect("read_utf8")
     }
 
-    #[cfg(feature = "use_std")]
+    #[cfg(any(feature = "std", feature = "alloc"))]
     fn prop_read_boxu8_with_fromreader(xs: Vec<u8>) -> bool {
         use std::io::Write;
         let mut buf = Vec::new();
@@ -227,7 +238,7 @@ quickcheck! {
         xs == reader.read_be::<Box<[u8]>>().expect("read_be")
     }
 
-    #[cfg(feature = "use_std")]
+    #[cfg(any(feature = "std", feature = "alloc"))]
     fn prop_read_vecu8_with_fromreader(xs: Vec<u8>) -> bool {
         use std::io::Write;
         let mut buf = Vec::new();
@@ -236,7 +247,7 @@ quickcheck! {
         xs == reader.read_be::<Vec<u8>>().expect("read_be")
     }
 
-    #[cfg(feature = "use_std")]
+    #[cfg(any(feature = "std", feature = "alloc"))]
     fn prop_read_boxstr_with_fromreader(xs: String) -> bool {
         use std::io::Write;
         let mut buf = Vec::new();
@@ -246,7 +257,7 @@ quickcheck! {
         xs == reader.read_be::<Box<str>>().expect("read_be")
     }
 
-    #[cfg(feature = "use_std")]
+    #[cfg(any(feature = "std", feature = "alloc"))]
     fn prop_read_string_with_fromreader(xs: String) -> bool {
         use std::io::Write;
         let mut buf = Vec::new();
@@ -255,7 +266,8 @@ quickcheck! {
         xs == reader.read_be::<String>().expect("read_be")
     }
 
-    #[cfg(feature = "use_std")]
+    #[cfg(feature = "std")]
+    #[expect(deprecated)]
     fn prop_read_utf16(xs: String) -> bool {
         let mut buf = vec![0xCD; 1500];
         if xs.is_ascii() || xs.len() > buf.len() {
@@ -271,16 +283,17 @@ quickcheck! {
         xs == reader.read_utf16(len).expect("read_utf16")
     }
 
-    #[cfg(feature = "use_std")]
-    fn prop_read_cstring(xs: std::ffi::CString) -> bool {
+    #[cfg(any(feature = "std", feature = "alloc"))]
+    fn prop_read_cstring(xs: CString) -> bool {
         let mut reader = reader(xs.as_bytes_with_nul());
         xs == reader.read_cstring(usize::MAX).expect("read_cstring")
     }
 
-    #[cfg(feature = "use_std")]
-    fn prop_read_multiple_cstrings(xs: Vec<std::ffi::CString>) -> bool {
+    #[cfg(any(feature = "std", feature = "alloc"))]
+    fn prop_read_multiple_cstrings(xs: Vec<CString>) -> bool {
         use std::io::Write;
-        let mut buf = Vec::new();
+        let len = xs.iter().map(|s| s.count_bytes() + 1).sum::<usize>();
+        let mut buf = Vec::with_capacity(len);
         for x in &xs {
             buf.write_all(x.as_bytes_with_nul()).expect("write_all");
         }
@@ -299,7 +312,7 @@ fn read_i8_specials() {
     let specials: &[i8] = &[i8::MIN, i8::MIN + 1, -1, 0, 1, i8::MAX - 1, i8::MAX];
     for s in specials {
         let mut buf = [0xCD; 16];
-        builder(&mut buf).add_byte(*s as u8).expect("add_byte");
+        builder(&mut buf).add_byte((*s).cast_unsigned()).expect("add_byte");
         let mut reader = reader(&buf);
         assert_eq!(*s, reader.read_i8().expect("read_i8"));
     }
@@ -310,7 +323,7 @@ fn read_i16be_specials() {
     let specials: &[i16] = &[i16::MIN, i16::MIN + 1, -1, 0, 1, i16::MAX - 1, i16::MAX];
     for s in specials {
         let mut buf = [0xCD; 16];
-        builder(&mut buf).add_u16_be(*s as u16).expect("add_u16_be");
+        builder(&mut buf).add_u16_be((*s).cast_unsigned()).expect("add_u16_be");
         let mut reader = reader(&buf);
         assert_eq!(*s, reader.read_i16be().expect("read_i16be"));
     }
@@ -332,7 +345,7 @@ fn read_i32be_specials() {
     let specials: &[i32] = &[i32::MIN, i32::MIN + 1, -1, 0, 1, i32::MAX - 1, i32::MAX];
     for s in specials {
         let mut buf = [0xCD; 16];
-        builder(&mut buf).add_u32_be(*s as u32).expect("add_u32_be");
+        builder(&mut buf).add_u32_be((*s).cast_unsigned()).expect("add_u32_be");
         let mut reader = reader(&buf);
         assert_eq!(*s, reader.read_i32be().expect("read_i32be"));
     }
@@ -362,7 +375,7 @@ fn read_i64be_specials() {
     let specials: &[i64] = &[i64::MIN, i64::MIN + 1, -1, 0, 1, i64::MAX - 1, i64::MAX];
     for s in specials {
         let mut buf = [0xCD; 16];
-        builder(&mut buf).add_u64_be(*s as u64).expect("add_u64_be");
+        builder(&mut buf).add_u64_be((*s).cast_unsigned()).expect("add_u64_be");
         let mut reader = reader(&buf);
         assert_eq!(*s, reader.read_i64be().expect("read_i64be"));
     }
@@ -373,7 +386,7 @@ fn read_i16le_specials() {
     let specials: &[i16] = &[i16::MIN, i16::MIN + 1, -1, 0, 1, i16::MAX - 1, i16::MAX];
     for s in specials {
         let mut buf = [0xCD; 16];
-        builder(&mut buf).add_u16_le(*s as u16).expect("add_u16_le");
+        builder(&mut buf).add_u16_le((*s).cast_unsigned()).expect("add_u16_le");
         let mut reader = reader(&buf);
         assert_eq!(*s, reader.read_i16le().expect("read_i16le"));
     }
@@ -384,7 +397,7 @@ fn read_i24le_specials() {
     let specials: &[i32] = &[-8_388_608, -8_388_607, -1, 0, 1, 8_388_606, 8_388_607];
     for s in specials {
         let mut buf = [0xCD; 16];
-        builder(&mut buf).add_u32_le(*s as u32).expect("add_u32_le");
+        builder(&mut buf).add_u32_le((*s).cast_unsigned()).expect("add_u32_le");
         let mut reader = reader(&buf);
         assert_eq!(*s, reader.read_i24le().expect("read_i24le"));
     }
@@ -396,7 +409,7 @@ fn read_i32le_specials() {
 
     for s in specials {
         let mut buf = [0xCD; 16];
-        builder(&mut buf).add_u32_le(*s as u32).expect("add_u32_le");
+        builder(&mut buf).add_u32_le((*s).cast_unsigned()).expect("add_u32_le");
         let mut reader = reader(&buf);
         assert_eq!(*s, reader.read_i32le().expect("read_i32le"));
     }
@@ -415,7 +428,7 @@ fn read_i48le_specials() {
     ];
     for s in specials {
         let mut buf = [0xCD; 16];
-        builder(&mut buf).add_u64_le(*s as u64).expect("add");
+        builder(&mut buf).add_u64_le((*s).cast_unsigned()).expect("add");
         let mut reader = reader(&buf);
         assert_eq!(*s, reader.read_i48le().expect("read_i48le"));
     }
@@ -426,19 +439,68 @@ fn read_i64le_specials() {
     let specials: &[i64] = &[i64::MIN, i64::MIN + 1, -1, 0, 1, i64::MAX - 1, i64::MAX];
     for s in specials {
         let mut buf = [0xCD; 16];
-        builder(&mut buf).add_u64_le(*s as u64).expect("add_u64_le");
+        builder(&mut buf).add_u64_le((*s).cast_unsigned()).expect("add_u64_le");
         let mut reader = reader(&buf);
         assert_eq!(*s, reader.read_i64le().expect("read_i64le"));
     }
 }
 
 #[test]
-#[cfg(feature = "use_std")]
+#[cfg(feature = "std")]
+fn read_utf16be() {
+    const BUF: &[u8] = &[
+        0xFE, 0xFF, // BOM
+        0x00, 0x57, 0x00, 0x69, 0x00, 0x65, 0x00, 0x6e, 0x00, 0x69, 0x00, 0x6c, 0x00, 0xe4, 0x00, 0x69, 0x00, 0x6e,
+        0x00, 0x65, 0x00, 0x6e, 0x00, 0x20, 0x00, 0xf6, 0x00, 0x6b, 0x00, 0x79, 0x00, 0x7a, 0x00, 0x6f, 0x00, 0x6d,
+        0x00, 0x62, 0x00, 0x69, 0x00, 0x65, 0x00, 0x20, 0x00, 0xc5, 0x00, 0x73, 0x00, 0x61, 0x00, 0x6e,
+    ];
+
+    // With BOM
+    let Ok(s) = reader(BUF).read_utf16be(BUF.len()) else {
+        unreachable!("Test shouldn't reach here");
+    };
+    assert_eq!(s, "Wieniläinen ökyzombie Åsan");
+
+    // Without BOM
+    let no_bom = BUF.get(2..).expect("we have enough bytes");
+    let Ok(s) = reader(no_bom).read_utf16be(no_bom.len()) else {
+        unreachable!("Test shouldn't reach here");
+    };
+    assert_eq!(s, "Wieniläinen ökyzombie Åsan");
+}
+
+#[test]
+#[cfg(feature = "std")]
+fn read_utf16le() {
+    const BUF: &[u8] = &[
+        0xFF, 0xFE, // BOM
+        0x57, 0x00, 0x69, 0x00, 0x65, 0x00, 0x6e, 0x00, 0x69, 0x00, 0x6c, 0x00, 0xe4, 0x00, 0x69, 0x00, 0x6e, 0x00,
+        0x65, 0x00, 0x6e, 0x00, 0x20, 0x00, 0xf6, 0x00, 0x6b, 0x00, 0x79, 0x00, 0x7a, 0x00, 0x6f, 0x00, 0x6d, 0x00,
+        0x62, 0x00, 0x69, 0x00, 0x65, 0x00, 0x20, 0x00, 0xc5, 0x00, 0x73, 0x00, 0x61, 0x00, 0x6e, 0x00,
+    ];
+
+    // With BOM
+    let Ok(s) = reader(BUF).read_utf16le(BUF.len()) else {
+        unreachable!("Test shouldn't reach here");
+    };
+    assert_eq!(s, "Wieniläinen ökyzombie Åsan");
+
+    // Without BOM
+    let no_bom = BUF.get(2..).expect("we have enough bytes");
+    let Ok(s) = reader(no_bom).read_utf16le(no_bom.len()) else {
+        unreachable!("Test shouldn't reach here");
+    };
+    assert_eq!(s, "Wieniläinen ökyzombie Åsan");
+}
+
+#[test]
+#[cfg(feature = "std")]
+#[expect(deprecated)]
 fn read_utf16_with_odd_length() {
     let mut reader = reader(&[]);
     match reader.read_utf16(3) {
         Err(err) => assert_eq!(err, untrustended::Error::ParseError),
-        _ => panic!("Test shouldn't reach here"),
+        _ => unreachable!("Test shouldn't reach here"),
     }
 }
 
@@ -481,9 +543,9 @@ fn read_ipv6addr() {
 }
 
 #[test]
-#[cfg(feature = "use_std")]
+#[cfg(feature = "std")]
 fn read_cstring() {
-    use std::ffi::CStr;
+    use core::ffi::CStr;
     const TESTS: &[&CStr] = &[c"", c"a", c"aaaaaaa", c"Hello World!"];
 
     for test in TESTS {
@@ -494,21 +556,18 @@ fn read_cstring() {
 }
 
 #[test]
-#[cfg(feature = "use_std")]
+#[cfg(feature = "std")]
 fn read_cstring_invalid_string() {
     const TESTS: &[&[u8]] = &[b"", b"a", b"aaaaaaa", b"Hello World!"];
 
     for test in TESTS {
         let mut reader = reader(test);
-        assert!(
-            reader.read_cstring(usize::MAX).is_err(),
-            "Invalid CString {test:?}"
-        );
+        assert!(reader.read_cstring(usize::MAX).is_err(), "Invalid CString {test:?}");
     }
 }
 
 #[test]
-#[cfg(feature = "use_std")]
+#[cfg(feature = "std")]
 fn read_cstring_missing_null() {
     const TESTS: &[&[u8]] = &[b"aaaaaaa", b"Hello World!"];
 

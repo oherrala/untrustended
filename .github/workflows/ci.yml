@@ -8,12 +8,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-22.04, ubuntu-24.04, macos-14, macos-15 ]
+        os: [ ubuntu-24.04, ubuntu-26.04, ubuntu-26.04-arm, macos-15, macos-26, xcode-27 ]
         rust:
           - stable
           - beta
           - nightly
-          - 1.93.1  # MSRV
+          - 1.98.1  # MSRV
     steps:
       - name: Install Rust ${{ matrix.rust }}
         run: |
@@ -23,6 +23,8 @@ jobs:
         with:
           persist-credentials: false
       - run: cargo test -v --no-default-features
+      - run: cargo test -v --no-default-features --features alloc
+      - run: cargo test -v --no-default-features --features std,alloc
       - run: cargo test -v
 
   lints:
